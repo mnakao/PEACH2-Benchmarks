@@ -1,0 +1,5 @@
+[tcag-0013:mpirun_rsh][signal_processor] Caught signal 15, killing job
+[tcag-0014:mpispawn_1][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0014:mpispawn_1][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0014:mpispawn_1][handle_mt_peer] Error while reading PMI socket. MPI process died?
+=>> PBS: job killed: walltime 61 exceeded limit 60

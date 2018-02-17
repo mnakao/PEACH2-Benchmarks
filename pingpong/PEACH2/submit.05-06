@@ -1,0 +1,16 @@
+#PBS -S /bin/bash
+#PBS -A TCAGEN
+#PBS -q tcaq-q1
+#PBS -l select=1:ncpus=1:host=tcag-0005+1:ncpus=1:host=tcag-0006
+#PBS -l walltime=00:01:00
+module purge
+module load cuda/7.5.18 intel/16.0.4 mvapich2-gdr/2.2_intel_cuda-7.5
+
+cd $PBS_O_WORKDIR
+export LD_LIBRARY_PATH=../../fujita/lib:$LD_LIBRARY_PATH
+OPT="CUDA_VISIBLE_DEVICES=0 MV2_ENABLE_AFFINITY=0 numactl --cpunodebind=0 --localalloc"
+
+mpirun_rsh -hostfile $PBS_NODEFILE -np 2 $OPT ./ping.out
+
+
+

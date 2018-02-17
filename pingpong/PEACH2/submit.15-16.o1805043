@@ -1,0 +1,7 @@
+data size = 8, latency = 2.019882[usec], bandwidth = 3.960627[MB/s]
+data size = 16, latency = 2.013922[usec], bandwidth = 7.944698[MB/s]
+data size = 32, latency = 2.013922[usec], bandwidth = 15.889396[MB/s]
+data size = 64, latency = 2.021790[usec], bandwidth = 31.655125[MB/s]
+data size = 128, latency = 2.017975[usec], bandwidth = 63.429928[MB/s]
+data size = 256, latency = 2.015114[usec], bandwidth = 127.039970[MB/s]
+data size = 512, latency = 2.037048[usec], bandwidth = 251.344060[MB/s]

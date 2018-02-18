@@ -7,7 +7,6 @@ int main(int argc, char** argv)
   double *host_array, *device_send_array, *device_recv_array;
 
   MPI_SAFE_CALL(MPI_Init(&argc, &argv));
-  TCA_SAFE_CALL(tcaInit());
   MPI_SAFE_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &my_rank));
 
   other = (my_rank + 1) % 2;
@@ -20,9 +19,8 @@ int main(int argc, char** argv)
     for(int i=0; i<count; i++)
       host_array[i] = (double)((my_rank+1)*i);
 
-    TCA_SAFE_CALL(tcaMalloc((void**)&device_send_array, transfer_byte, tcaMemoryGPU));
-    TCA_SAFE_CALL(tcaMalloc((void**)&device_recv_array, transfer_byte, tcaMemoryGPU));
-
+    CUDA_SAFE_CALL(cudaMalloc((void**)&device_send_array, transfer_byte));
+    CUDA_SAFE_CALL(cudaMalloc((void**)&device_recv_array, transfer_byte));
     CUDA_SAFE_CALL(cudaMemcpy(device_send_array, host_array, transfer_byte, cudaMemcpyDefault));
     CUDA_SAFE_CALL(cudaMemcpy(device_recv_array, host_array, transfer_byte, cudaMemcpyDefault));
 
@@ -61,8 +59,8 @@ int main(int argc, char** argv)
       printf("size = %d one_way_comm_time = %lf [usec], bandwidth = %lf [MB/s]\n", transfer_byte, one_way_comm_time, bandwidth);
     
     CUDA_SAFE_CALL(cudaFreeHost(host_array));
-    TCA_SAFE_CALL(tcaFree(device_send_array, tcaMemoryGPU));
-    TCA_SAFE_CALL(tcaFree(device_recv_array, tcaMemoryGPU));
+    CUDA_SAFE_CALL(cudaFree(device_send_array));
+    CUDA_SAFE_CALL(cudaFree(device_recv_array));
   }
 
   MPI_SAFE_CALL(MPI_Finalize());

@@ -1,5 +1,5 @@
 #include "common.h"
-#define LAST_FLAG (tcaDMAUseInternal|tcaDMAUseNotifyInternal|tcaDMANotify|tcaDMAPipeline|tcaDMANotifySelf)
+#define LAST_FLAG   (tcaDMAUseInternal|tcaDMAUseNotifyInternal|tcaDMANotify|tcaDMANotifySelf)
 
 void verify(double *host, int row, int column, int depth, int my_rank)
 {

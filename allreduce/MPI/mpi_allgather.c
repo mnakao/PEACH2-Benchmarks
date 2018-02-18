@@ -1,10 +1,10 @@
 #include "common.h"
 
-int main(int argc, char **argv)
+int main (int argc, char **argv)
 {
   int my_rank, num_proc;
   size_t whole_byte, byte;
-  double start_time, my_time, sum_time;
+  double start, end;
   double *host_send_buffer, *host_recv_buffer;
   double *device_send_buffer, *device_recv_buffer;
 
@@ -13,7 +13,7 @@ int main(int argc, char **argv)
   MPI_Comm_size(MPI_COMM_WORLD, &num_proc);
   CUDA_SAFE_CALL(cudaSetDevice(0));
 
-  for(int count=1; count<=COUNT; count*=2){
+  for(int count=2; count<=COUNT; count*=2){
     byte       = count * sizeof(double);
     whole_byte = byte * num_proc;
 
@@ -27,22 +27,18 @@ int main(int argc, char **argv)
 
     CUDA_SAFE_CALL(cudaMemcpy(device_send_buffer, host_send_buffer, byte, cudaMemcpyDefault));
     MPI_Barrier(MPI_COMM_WORLD);
-    sum_time = 0.0;
-    for(int t=0; t<WARMUP+TIMES; t++){
-      MPI_Barrier(MPI_COMM_WORLD);
 
-      if(t >= WARMUP)
-    	start_time = MPI_Wtime();
+    for(int t=0; t<WARMUP+TIMES; t++){
+      if(t == WARMUP){
+	MPI_Barrier(MPI_COMM_WORLD);
+    	start = MPI_Wtime();
+      }
       
       MPI_Allgather(device_send_buffer, count, MPI_DOUBLE, device_recv_buffer, count, MPI_DOUBLE, MPI_COMM_WORLD);
-
-      if (t >= WARMUP) {
-        my_time = MPI_Wtime() - start_time;
-        MPI_Allreduce(MPI_IN_PLACE, &my_time, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
-        sum_time += my_time;
-      }
     }
 
+    MPI_Barrier(MPI_COMM_WORLD);
+    end = MPI_Wtime();
     CUDA_SAFE_CALL(cudaMemcpy(host_recv_buffer, device_recv_buffer, whole_byte, cudaMemcpyDefault));
 
     for(int i=0; i<num_proc; i++)
@@ -51,7 +47,7 @@ int main(int argc, char **argv)
 	  printf("failed\n");
     
     if(my_rank == 0)
-      printf("size = %zu %lf us\n", byte, (sum_time/TIMES)*1e6);
+      printf("size = %zu %lf us\n", byte, ((end-start)/TIMES)*1e6);
 
     CUDA_SAFE_CALL(cudaFreeHost(host_send_buffer));
     CUDA_SAFE_CALL(cudaFreeHost(host_recv_buffer));

@@ -40,8 +40,8 @@ int main(int argc, char** argv)
     matrix_byte = row * depth * sizeof(double);
 
     CUDA_SAFE_CALL(cudaMallocHost((void**)&host_cube, cube_byte));
-    cudaMalloc((void**)&device_cube, cube_byte);
-    cudaMalloc((void**)&tmp_matrix, matrix_byte);
+    CUDA_SAFE_CALL(cudaMalloc((void**)&device_cube, cube_byte));
+    CUDA_SAFE_CALL(cudaMalloc((void**)&tmp_matrix, matrix_byte));
 
     for(int i=0; i<row; i++)
       for(int j=0; j<column; j++)

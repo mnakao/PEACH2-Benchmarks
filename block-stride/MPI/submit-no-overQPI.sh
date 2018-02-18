@@ -13,6 +13,5 @@ cd $PBS_O_WORKDIR
 export LD_LIBRARY_PATH=../../fujita/lib:$LD_LIBRARY_PATH
 for i in $(seq 1 10)
 do
-mpirun_rsh -hostfile $PBS_NODEFILE -np 2 $OPT ./ping.out
+mpirun_rsh -hostfile $PBS_NODEFILE -np 2 $OPT ./mpi-block-stride.out
 done
-echo $SECONDS

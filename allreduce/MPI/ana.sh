@@ -1,14 +1,14 @@
 FILE=$1
-awk '{print $4}' $FILE | head -n 16 > 0.txt
-awk '{print $4}' $FILE | head -n 32 | tail -n 16 > 1.txt
-awk '{print $4}' $FILE | head -n 48 | tail -n 16 > 2.txt
-awk '{print $4}' $FILE | head -n 64 | tail -n 16 > 3.txt
-awk '{print $4}' $FILE | head -n 80 | tail -n 16 > 4.txt
-awk '{print $4}' $FILE | head -n 96 | tail -n 16 > 5.txt
-awk '{print $4}' $FILE | head -n 112 | tail -n 16 > 6.txt
-awk '{print $4}' $FILE | head -n 128 | tail -n 16 > 7.txt
-awk '{print $4}' $FILE | head -n 144 | tail -n 16 > 8.txt
-awk '{print $4}' $FILE | head -n 160 | tail -n 16 > 9.txt
+awk '{print $4}' $FILE | head -n 17 > 0.txt
+awk '{print $4}' $FILE | head -n 34 | tail -n 17 > 1.txt
+awk '{print $4}' $FILE | head -n 51 | tail -n 17 > 2.txt
+awk '{print $4}' $FILE | head -n 68 | tail -n 17 > 3.txt
+awk '{print $4}' $FILE | head -n 85 | tail -n 17 > 4.txt
+awk '{print $4}' $FILE | head -n 102 | tail -n 17 > 5.txt
+awk '{print $4}' $FILE | head -n 119 | tail -n 17 > 6.txt
+awk '{print $4}' $FILE | head -n 136 | tail -n 17 > 7.txt
+awk '{print $4}' $FILE | head -n 153 | tail -n 17 > 8.txt
+awk '{print $4}' $FILE | head -n 170 | tail -n 17 > 9.txt
 paste *.txt
 rm -f *.txt
 

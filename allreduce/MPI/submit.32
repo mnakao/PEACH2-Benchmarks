@@ -1,9 +1,9 @@
 #PBS -S /bin/bash
 #PBS -A XMPTCA
-#PBS -N mpi_allgather32
+#PBS -N mpi_bcast32
 #PBS -q tcaq
 #PBS -l select=32:ncpus=1
-#PBS -l walltime=00:05:00
+#PBS -l walltime=00:07:00
 #---------------
 # select=NODES:ncpus=CORES:mpiprocs=PROCS:ompthreads=THREADS:mem=MEMORY
 # NODES   : num of nodes
@@ -19,5 +19,5 @@ cd $PBS_O_WORKDIR
 export LD_LIBRARY_PATH=../../fujita/lib:$LD_LIBRARY_PATH
 for i in $(seq 1 10)
 do
-mpirun_rsh -hostfile $PBS_NODEFILE -np 32 $OPT ./mpi_allgather.out
+mpirun_rsh -hostfile $PBS_NODEFILE -np 32 $OPT ./mpi_allreduce.out
 done

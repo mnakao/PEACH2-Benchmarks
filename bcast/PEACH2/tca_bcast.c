@@ -5,23 +5,24 @@ int main(int argc, char** argv)
 {
   int const dmac_ch = 0;
   int const wait_tag = 0x100;
-  int my_rank, num_proc, num_procs, namelen;
+  int my_rank, num_procs, namelen;
   char processor_name[MPI_MAX_PROCESSOR_NAME];
 
   MPI_Init(&argc, &argv);
   TCA_SAFE_CALL(tcaInit());
   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-  MPI_Comm_size(MPI_COMM_WORLD, &num_proc);
-  if(! IS_POW_2(num_proc)){
-    printf("This program is executed in only 2^n processes %d\n", num_proc);
+  MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
+  if(! IS_POW_2(num_procs)){
+    if(my_rank == 0)
+      printf("This program is executed in only 2^n processes %d\n", num_procs);
     MPI_Finalize();
     exit(1);
   }
   
   MPI_Get_processor_name(processor_name, &namelen);
-  printf("Process %d of %d is on %s\n", my_rank, num_proc, processor_name);
+  printf("Process %d of %d is on %s\n", my_rank, num_procs, processor_name);
 
-  CUDA_SAFE_CALL(cudaSetDevice(0));  
+  CUDA_SAFE_CALL(cudaSetDevice(0));
   
   for(int count=1; count<=COUNT; count*=2){
     double start_time, my_time, sum_time;
@@ -37,12 +38,12 @@ int main(int argc, char** argv)
     CUDA_SAFE_CALL(cudaMemcpy(device_array, host_array, byte, cudaMemcpyDefault));
 
     tcaHandle *handle;
-    tcaCreateHandleList(&handle, num_proc, device_array, byte);
+    tcaCreateHandleList(&handle, num_procs, device_array, byte);
     tcaDesc *tca_desc = tcaDescNew();
     const int dmaFlag = tcaDMAUseInternal|tcaDMAUseNotifyInternal|tcaDMANotify|tcaDMANotifySelf;
 
-    int steps = (int)log2((double)num_proc);
-    int step_size = num_proc;
+    int steps = (int)log2((double)num_procs);
+    int step_size = num_procs;
     for(int i=0;i<steps;i++){
       if(my_rank % step_size == 0){
 	int other = my_rank + step_size/2;
@@ -62,7 +63,30 @@ int main(int argc, char** argv)
       if(t >= WARMUP)
     	start_time = MPI_Wtime();
 
-      int step_size = num_proc;
+      if(num_procs == 32){
+	if(my_rank == 0) 
+	  MPI_Send(device_array, count, MPI_DOUBLE, 16, 0, MPI_COMM_WORLD);
+	else if(my_rank == 16)
+	  MPI_Recv(device_array, count, MPI_DOUBLE, 0,  0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      }
+      else if(num_procs == 64){
+	if(my_rank == 0){
+	  MPI_Send(device_array, count, MPI_DOUBLE, 16, 0, MPI_COMM_WORLD);
+	  MPI_Send(device_array, count, MPI_DOUBLE, 32, 1, MPI_COMM_WORLD);
+	}
+	else if(my_rank == 16){
+	  MPI_Recv(device_array, count, MPI_DOUBLE, 0,  0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+	}
+	else if(my_rank == 32){
+	  MPI_Recv(device_array, count, MPI_DOUBLE, 0,  1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+	  MPI_Send(device_array, count, MPI_DOUBLE, 48, 0, MPI_COMM_WORLD);
+	}
+	else if(my_rank == 48){
+	  MPI_Recv(device_array, count, MPI_DOUBLE, 32,  0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+	}
+      }
+
+      int step_size = num_procs;
       for(int i=0;i<steps;i++){
 	if(my_rank % step_size == 0){
 	  if(my_rank != 0){

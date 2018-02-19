@@ -7,6 +7,6 @@
 #include "tca-help.h"
 #include "cuda-help.h"
 
-#define COUNT 1024*64
+#define COUNT 1024*512
 #define WARMUP 50
 #define TIMES 1000

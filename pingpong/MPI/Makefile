@@ -6,7 +6,7 @@ CFLAGS=-Wall -O3 -std=c99 -I$(CUDA)/include -I$(ODAJIMA)/include -I$(FUJITA)/inc
 CLINKS=-L$(FUJITA)/lib -ltca -L$(ODAJIMA)/lib -ltcacomm -L$(CUDA)/lib64 -lcudart
 
 all: ping.out
-ping.out: mpi-pingpong.c
+ping.out: mpi-pingpong.c ../common.h
 	$(CC) $(CFLAGS) -o ping.out mpi-pingpong.c $(CLINKS)
 
 clean:

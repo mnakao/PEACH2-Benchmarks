@@ -6,7 +6,7 @@ CFLAGS=-Wall -O3 -std=c99 -I$(CUDA)/include -I$(ODAJIMA)/include -I$(FUJITA)/inc
 CLINKS=-L$(FUJITA)/lib -ltca -L$(ODAJIMA)/lib -ltcacomm -L$(CUDA)/lib64 -lcudart
 
 all: tca-block-stride.out
-tca-block-stride.out: tca-block-stride.c
+tca-block-stride.out: tca-block-stride.c ../common.h
 	$(CC) $(CFLAGS) -o tca-block-stride.out tca-block-stride.c $(CLINKS)
 
 clean:

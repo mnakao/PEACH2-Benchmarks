@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 
   CUDA_SAFE_CALL(cudaSetDevice(0));
   
-  tca_bcast(1, my_rank, num_procs, 0);
+  tca_bcast(1, my_rank, num_procs, 0); // The first run is slow, so run it empty.
   for(int count=1; count<=COUNT; count*=2)
     tca_bcast(count, my_rank, num_procs, 1);
 

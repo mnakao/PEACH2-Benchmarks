@@ -1,0 +1,360 @@
+Process 0 of 16 is on tcag-0001
+Process 5 of 16 is on tcag-0006
+Process 14 of 16 is on tcag-0015
+Process 4 of 16 is on tcag-0005
+Process 8 of 16 is on tcag-0009
+Process 6 of 16 is on tcag-0007
+Process 10 of 16 is on tcag-0011
+Process 1 of 16 is on tcag-0002
+Process 13 of 16 is on tcag-0014
+Process 11 of 16 is on tcag-0012
+Process 7 of 16 is on tcag-0008
+Process 9 of 16 is on tcag-0010
+Process 12 of 16 is on tcag-0013
+Process 3 of 16 is on tcag-0004
+Process 2 of 16 is on tcag-0003
+Process 15 of 16 is on tcag-0016
+8 6.073236
+16 5.203724
+32 5.345345
+64 5.280018
+128 5.419731
+256 5.349398
+512 5.248308
+1024 5.442142
+2048 5.843401
+4096 11.548996
+8192 18.086433
+16384 31.918287
+32768 60.887575
+65536 119.299889
+131072 233.996868
+262144 461.075783
+524288 909.354210
+1048576 1783.523321
+2097152 3838.246107
+4194304 7578.951359
+Process 0 of 16 is on tcag-0001
+Process 5 of 16 is on tcag-0006
+Process 4 of 16 is on tcag-0005
+Process 14 of 16 is on tcag-0015
+Process 8 of 16 is on tcag-0009
+Process 6 of 16 is on tcag-0007
+Process 1 of 16 is on tcag-0002
+Process 7 of 16 is on tcag-0008
+Process 13 of 16 is on tcag-0014
+Process 11 of 16 is on tcag-0012
+Process 9 of 16 is on tcag-0010
+Process 12 of 16 is on tcag-0013
+Process 10 of 16 is on tcag-0011
+Process 2 of 16 is on tcag-0003
+Process 3 of 16 is on tcag-0004
+Process 15 of 16 is on tcag-0016
+8 6.099224
+16 5.437851
+32 5.476236
+64 5.478144
+128 5.309820
+256 5.315065
+512 5.362272
+1024 5.576134
+2048 5.892277
+4096 11.614799
+8192 18.206120
+16384 32.215357
+32768 64.429998
+65536 119.541168
+131072 232.205868
+262144 451.584816
+524288 894.191504
+1048576 1758.976936
+2097152 3852.741003
+4194304 7664.900541
+Process 0 of 16 is on tcag-0001
+Process 5 of 16 is on tcag-0006
+Process 4 of 16 is on tcag-0005
+Process 8 of 16 is on tcag-0009
+Process 14 of 16 is on tcag-0015
+Process 6 of 16 is on tcag-0007
+Process 1 of 16 is on tcag-0002
+Process 13 of 16 is on tcag-0014
+Process 11 of 16 is on tcag-0012
+Process 7 of 16 is on tcag-0008
+Process 9 of 16 is on tcag-0010
+Process 12 of 16 is on tcag-0013
+Process 2 of 16 is on tcag-0003
+Process 10 of 16 is on tcag-0011
+Process 3 of 16 is on tcag-0004
+Process 15 of 16 is on tcag-0016
+8 6.143570
+16 5.440950
+32 5.425453
+64 5.385637
+128 5.522251
+256 5.482197
+512 6.720543
+1024 5.616426
+2048 6.079435
+4096 11.714935
+8192 18.393040
+16384 31.916380
+32768 60.731888
+65536 118.131161
+131072 230.954170
+262144 455.784082
+524288 899.694204
+1048576 1780.742645
+2097152 3875.347376
+4194304 7665.643215
+Process 0 of 16 is on tcag-0001
+Process 5 of 16 is on tcag-0006
+Process 4 of 16 is on tcag-0005
+Process 8 of 16 is on tcag-0009
+Process 14 of 16 is on tcag-0015
+Process 6 of 16 is on tcag-0007
+Process 1 of 16 is on tcag-0002
+Process 13 of 16 is on tcag-0014
+Process 11 of 16 is on tcag-0012
+Process 7 of 16 is on tcag-0008
+Process 9 of 16 is on tcag-0010
+Process 2 of 16 is on tcag-0003
+Process 12 of 16 is on tcag-0013
+Process 10 of 16 is on tcag-0011
+Process 3 of 16 is on tcag-0004
+Process 15 of 16 is on tcag-0016
+8 5.754948
+16 5.382299
+32 5.457640
+64 5.271435
+128 5.309582
+256 6.608009
+512 5.446911
+1024 5.510807
+2048 5.938053
+4096 11.739016
+8192 18.208504
+16384 32.442093
+32768 61.343908
+65536 118.901491
+131072 232.936621
+262144 461.918354
+524288 919.359207
+1048576 1805.319071
+2097152 3954.298258
+4194304 7667.526960
+Process 0 of 16 is on tcag-0001
+Process 5 of 16 is on tcag-0006
+Process 4 of 16 is on tcag-0005
+Process 6 of 16 is on tcag-0007
+Process 14 of 16 is on tcag-0015
+Process 8 of 16 is on tcag-0009
+Process 1 of 16 is on tcag-0002
+Process 13 of 16 is on tcag-0014
+Process 11 of 16 is on tcag-0012
+Process 7 of 16 is on tcag-0008
+Process 9 of 16 is on tcag-0010
+Process 10 of 16 is on tcag-0011
+Process 12 of 16 is on tcag-0013
+Process 2 of 16 is on tcag-0003
+Process 3 of 16 is on tcag-0004
+Process 15 of 16 is on tcag-0016
+8 5.886316
+16 5.503416
+32 5.512953
+64 5.353928
+128 5.368233
+256 5.307436
+512 5.469322
+1024 5.680084
+2048 5.857229
+4096 11.746407
+8192 18.218517
+16384 32.375097
+32768 61.231136
+65536 118.702412
+131072 234.669685
+262144 465.197802
+524288 911.176205
+1048576 1796.553850
+2097152 3865.907669
+4194304 7654.174089
+Process 0 of 16 is on tcag-0001
+Process 5 of 16 is on tcag-0006
+Process 4 of 16 is on tcag-0005
+Process 14 of 16 is on tcag-0015
+Process 6 of 16 is on tcag-0007
+Process 8 of 16 is on tcag-0009
+Process 13 of 16 is on tcag-0014
+Process 11 of 16 is on tcag-0012
+Process 1 of 16 is on tcag-0002
+Process 7 of 16 is on tcag-0008
+Process 2 of 16 is on tcag-0003
+Process 12 of 16 is on tcag-0013
+Process 10 of 16 is on tcag-0011
+Process 9 of 16 is on tcag-0010
+Process 3 of 16 is on tcag-0004
+Process 15 of 16 is on tcag-0016
+8 6.965160
+16 5.300045
+32 5.346298
+64 5.324602
+128 5.270243
+256 5.547047
+512 5.322456
+1024 5.497456
+2048 5.993843
+4096 11.537313
+8192 18.226385
+16384 31.233549
+32768 58.590651
+65536 111.956596
+131072 217.558384
+262144 434.233665
+524288 880.265713
+1048576 1755.145550
+2097152 3758.545399
+4194304 7672.414064
+Process 0 of 16 is on tcag-0001
+Process 5 of 16 is on tcag-0006
+Process 8 of 16 is on tcag-0009
+Process 6 of 16 is on tcag-0007
+Process 14 of 16 is on tcag-0015
+Process 4 of 16 is on tcag-0005
+Process 11 of 16 is on tcag-0012
+Process 1 of 16 is on tcag-0002
+Process 13 of 16 is on tcag-0014
+Process 7 of 16 is on tcag-0008
+Process 12 of 16 is on tcag-0013
+Process 2 of 16 is on tcag-0003
+Process 9 of 16 is on tcag-0010
+Process 10 of 16 is on tcag-0011
+Process 3 of 16 is on tcag-0004
+Process 15 of 16 is on tcag-0016
+8 7.167816
+16 5.375862
+32 5.383015
+64 5.389214
+128 5.394697
+256 5.398035
+512 5.593538
+1024 5.580664
+2048 5.929470
+4096 11.572361
+8192 18.390417
+16384 32.492876
+32768 60.756683
+65536 118.095160
+131072 228.804350
+262144 448.800802
+524288 887.046814
+1048576 1762.594223
+2097152 3861.578226
+4194304 7665.965557
+Process 0 of 16 is on tcag-0001
+Process 5 of 16 is on tcag-0006
+Process 11 of 16 is on tcag-0012
+Process 6 of 16 is on tcag-0007
+Process 4 of 16 is on tcag-0005
+Process 8 of 16 is on tcag-0009
+Process 14 of 16 is on tcag-0015
+Process 13 of 16 is on tcag-0014
+Process 1 of 16 is on tcag-0002
+Process 7 of 16 is on tcag-0008
+Process 12 of 16 is on tcag-0013
+Process 9 of 16 is on tcag-0010
+Process 2 of 16 is on tcag-0003
+Process 3 of 16 is on tcag-0004
+Process 10 of 16 is on tcag-0011
+Process 15 of 16 is on tcag-0016
+8 5.400896
+16 5.343437
+32 5.319357
+64 5.266428
+128 5.261660
+256 5.160093
+512 5.297899
+1024 5.476952
+2048 5.810976
+4096 11.560678
+8192 17.894983
+16384 32.050610
+32768 60.980082
+65536 118.279457
+131072 230.630159
+262144 452.991486
+524288 901.575565
+1048576 1791.991234
+2097152 3815.375566
+4194304 7668.813705
+Process 0 of 16 is on tcag-0001
+Process 5 of 16 is on tcag-0006
+Process 4 of 16 is on tcag-0005
+Process 14 of 16 is on tcag-0015
+Process 11 of 16 is on tcag-0012
+Process 8 of 16 is on tcag-0009
+Process 6 of 16 is on tcag-0007
+Process 13 of 16 is on tcag-0014
+Process 1 of 16 is on tcag-0002
+Process 7 of 16 is on tcag-0008
+Process 2 of 16 is on tcag-0003
+Process 12 of 16 is on tcag-0013
+Process 10 of 16 is on tcag-0011
+Process 3 of 16 is on tcag-0004
+Process 9 of 16 is on tcag-0010
+Process 15 of 16 is on tcag-0016
+8 5.640745
+16 5.254507
+32 5.296469
+64 5.347490
+128 5.292416
+256 5.287647
+512 5.371571
+1024 5.538225
+2048 5.933285
+4096 11.492729
+8192 17.951727
+16384 31.787395
+32768 59.895754
+65536 116.227150
+131072 227.186680
+262144 448.635817
+524288 888.367176
+1048576 1784.052849
+2097152 3835.042715
+4194304 7669.508219
+Process 0 of 16 is on tcag-0001
+Process 5 of 16 is on tcag-0006
+Process 14 of 16 is on tcag-0015
+Process 11 of 16 is on tcag-0012
+Process 6 of 16 is on tcag-0007
+Process 4 of 16 is on tcag-0005
+Process 8 of 16 is on tcag-0009
+Process 1 of 16 is on tcag-0002
+Process 13 of 16 is on tcag-0014
+Process 7 of 16 is on tcag-0008
+Process 12 of 16 is on tcag-0013
+Process 10 of 16 is on tcag-0011
+Process 2 of 16 is on tcag-0003
+Process 3 of 16 is on tcag-0004
+Process 9 of 16 is on tcag-0010
+Process 15 of 16 is on tcag-0016
+8 6.317616
+16 8.453131
+32 13.962269
+64 8.670330
+128 5.275488
+256 5.426407
+512 5.463362
+1024 5.512714
+2048 5.897522
+4096 11.630535
+8192 18.261671
+16384 32.262087
+32768 61.081886
+65536 118.150711
+131072 232.266665
+262144 462.018967
+524288 915.389299
+1048576 1808.886290
+2097152 3873.772383
+4194304 7665.534258

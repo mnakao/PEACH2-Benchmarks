@@ -6,7 +6,7 @@ CFLAGS=-Wall -O3 -std=c99 -I$(CUDA)/include -I$(ODAJIMA)/include -I$(FUJITA)/inc
 CLINKS=-L$(FUJITA)/lib -ltca -L$(ODAJIMA)/lib -ltcacomm -L$(CUDA)/lib64 -lcudart
 
 all: mpi_allgather.out
-mpi_allgather.out: mpi_allgather.c
+mpi_allgather.out: mpi_allgather.c ../common.h
 	$(CC) $(CFLAGS) -o mpi_allgather.out mpi_allgather.c $(CLINKS)
 
 clean:

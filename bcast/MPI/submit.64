@@ -3,7 +3,7 @@
 #PBS -N mpi_bcast64
 #PBS -q tcaq
 #PBS -l select=64:ncpus=1
-#PBS -l walltime=00:05:00
+#PBS -l walltime=00:10:00
 #---------------
 # select=NODES:ncpus=CORES:mpiprocs=PROCS:ompthreads=THREADS:mem=MEMORY
 # NODES   : num of nodes

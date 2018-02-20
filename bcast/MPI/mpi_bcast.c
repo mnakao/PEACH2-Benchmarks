@@ -17,9 +17,8 @@ int main(int argc, char **argv)
     CUDA_SAFE_CALL(cudaMallocHost((void**)&host_buffer, byte));
     CUDA_SAFE_CALL(cudaMalloc((void**)&device_buffer, byte));
 
-    if(my_rank == 0)
-      for(int i=0; i<count; i++)
-	host_buffer[i] = (double)i;
+    if(my_rank == 0) for(int i=0; i<count; i++) host_buffer[i] = (double)i;
+    else             for(int i=0; i<count; i++) host_buffer[i] = -1.0;
 
     CUDA_SAFE_CALL(cudaMemcpy(device_buffer, host_buffer, byte, cudaMemcpyDefault));
     MPI_Barrier(MPI_COMM_WORLD);

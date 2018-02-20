@@ -1,0 +1,46 @@
+[tcag-0001:mpirun_rsh][signal_processor] Caught signal 15, killing job
+[tcag-0003:mpispawn_1][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0003:mpispawn_1][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0003:mpispawn_1][handle_mt_peer] Error while reading PMI socket. MPI process died?
+[tcag-0008:mpispawn_6][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0008:mpispawn_6][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0008:mpispawn_6][handle_mt_peer] Error while reading PMI socket. MPI process died?
+[tcag-0007:mpispawn_5][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0007:mpispawn_5][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0007:mpispawn_5][handle_mt_peer] Error while reading PMI socket. MPI process died?
+[tcag-0006:mpispawn_4][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0006:mpispawn_4][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0006:mpispawn_4][handle_mt_peer] Error while reading PMI socket. MPI process died?
+[tcag-0005:mpispawn_3][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0005:mpispawn_3][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0005:mpispawn_3][handle_mt_peer] Error while reading PMI socket. MPI process died?
+[tcag-0009:mpispawn_7][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0009:mpispawn_7][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0009:mpispawn_7][handle_mt_peer] Error while reading PMI socket. MPI process died?
+[tcag-0012:mpispawn_10][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0012:mpispawn_10][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0012:mpispawn_10][handle_mt_peer] Error while reading PMI socket. MPI process died?
+[tcag-0011:mpispawn_9][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0011:mpispawn_9][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0011:mpispawn_9][handle_mt_peer] Error while reading PMI socket. MPI process died?
+[tcag-0010:mpispawn_8][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0010:mpispawn_8][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0010:mpispawn_8][handle_mt_peer] Error while reading PMI socket. MPI process died?
+[tcag-0013:mpispawn_11][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0013:mpispawn_11][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0013:mpispawn_11][handle_mt_peer] Error while reading PMI socket. MPI process died?
+[tcag-0016:mpispawn_14][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0016:mpispawn_14][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0016:mpispawn_14][handle_mt_peer] Error while reading PMI socket. MPI process died?
+[tcag-0014:mpispawn_12][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0014:mpispawn_12][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0014:mpispawn_12][handle_mt_peer] Error while reading PMI socket. MPI process died?
+[tcag-0002:mpispawn_15][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0002:mpispawn_15][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0002:mpispawn_15][handle_mt_peer] Error while reading PMI socket. MPI process died?
+[tcag-0015:mpispawn_13][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0015:mpispawn_13][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0015:mpispawn_13][handle_mt_peer] Error while reading PMI socket. MPI process died?
+[tcag-0004:mpispawn_2][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0004:mpispawn_2][read_size] Unexpected End-Of-File on file descriptor 6. MPI process died?
+[tcag-0004:mpispawn_2][handle_mt_peer] Error while reading PMI socket. MPI process died?

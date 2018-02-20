@@ -1,0 +1,360 @@
+Process 0 of 16 is on tcag-0001
+Process 9 of 16 is on tcag-0010
+Process 10 of 16 is on tcag-0011
+Process 11 of 16 is on tcag-0012
+Process 2 of 16 is on tcag-0003
+Process 6 of 16 is on tcag-0007
+Process 4 of 16 is on tcag-0005
+Process 1 of 16 is on tcag-0002
+Process 15 of 16 is on tcag-0016
+Process 8 of 16 is on tcag-0009
+Process 12 of 16 is on tcag-0013
+Process 5 of 16 is on tcag-0006
+Process 14 of 16 is on tcag-0015
+Process 7 of 16 is on tcag-0008
+Process 13 of 16 is on tcag-0014
+Process 3 of 16 is on tcag-0004
+8 5.372763 us
+16 5.306721 us
+32 5.194664 us
+64 5.257845 us
+128 5.274057 us
+256 5.297184 us
+512 5.246878 us
+1024 5.370378 us
+2048 5.807161 us
+4096 11.682272 us
+8192 18.178225 us
+16384 31.829834 us
+32768 59.648752 us
+65536 115.057230 us
+131072 226.696014 us
+262144 442.878246 us
+524288 891.962528 us
+1048576 1801.548004 us
+2097152 3893.054008 us
+4194304 7670.503855 us
+Process 0 of 16 is on tcag-0001
+Process 9 of 16 is on tcag-0010
+Process 11 of 16 is on tcag-0012
+Process 10 of 16 is on tcag-0011
+Process 2 of 16 is on tcag-0003
+Process 6 of 16 is on tcag-0007
+Process 4 of 16 is on tcag-0005
+Process 1 of 16 is on tcag-0002
+Process 15 of 16 is on tcag-0016
+Process 8 of 16 is on tcag-0009
+Process 12 of 16 is on tcag-0013
+Process 5 of 16 is on tcag-0006
+Process 14 of 16 is on tcag-0015
+Process 13 of 16 is on tcag-0014
+Process 3 of 16 is on tcag-0004
+Process 7 of 16 is on tcag-0008
+8 5.517006 us
+16 6.828547 us
+32 5.572319 us
+64 5.441427 us
+128 5.565882 us
+256 5.549908 us
+512 5.548000 us
+1024 5.736113 us
+2048 6.012201 us
+4096 11.987686 us
+8192 18.421412 us
+16384 32.407999 us
+32768 61.783791 us
+65536 119.059086 us
+131072 232.364655 us
+262144 452.350140 us
+524288 903.075457 us
+1048576 1803.149462 us
+2097152 3849.501610 us
+4194304 7660.916090 us
+Process 0 of 16 is on tcag-0001
+Process 9 of 16 is on tcag-0010
+Process 11 of 16 is on tcag-0012
+Process 10 of 16 is on tcag-0011
+Process 2 of 16 is on tcag-0003
+Process 6 of 16 is on tcag-0007
+Process 1 of 16 is on tcag-0002
+Process 4 of 16 is on tcag-0005
+Process 15 of 16 is on tcag-0016
+Process 8 of 16 is on tcag-0009
+Process 12 of 16 is on tcag-0013
+Process 5 of 16 is on tcag-0006
+Process 14 of 16 is on tcag-0015
+Process 13 of 16 is on tcag-0014
+Process 7 of 16 is on tcag-0008
+Process 3 of 16 is on tcag-0004
+8 5.274057 us
+16 5.306721 us
+32 5.398035 us
+64 5.469084 us
+128 5.395889 us
+256 5.315781 us
+512 5.344152 us
+1024 5.573750 us
+2048 6.121159 us
+4096 11.729240 us
+8192 18.260479 us
+16384 32.459497 us
+32768 61.348438 us
+65536 120.069504 us
+131072 236.188889 us
+262144 464.697838 us
+524288 912.514687 us
+1048576 1792.500734 us
+2097152 3906.592131 us
+4194304 7666.214943 us
+Process 0 of 16 is on tcag-0001
+Process 9 of 16 is on tcag-0010
+Process 11 of 16 is on tcag-0012
+Process 10 of 16 is on tcag-0011
+Process 2 of 16 is on tcag-0003
+Process 6 of 16 is on tcag-0007
+Process 1 of 16 is on tcag-0002
+Process 4 of 16 is on tcag-0005
+Process 15 of 16 is on tcag-0016
+Process 8 of 16 is on tcag-0009
+Process 12 of 16 is on tcag-0013
+Process 5 of 16 is on tcag-0006
+Process 14 of 16 is on tcag-0015
+Process 7 of 16 is on tcag-0008
+Process 13 of 16 is on tcag-0014
+Process 3 of 16 is on tcag-0004
+8 5.466938 us
+16 5.519390 us
+32 5.547762 us
+64 5.510807 us
+128 5.459785 us
+256 5.437613 us
+512 5.799532 us
+1024 5.836487 us
+2048 5.899429 us
+4096 11.646032 us
+8192 18.356085 us
+16384 31.661749 us
+32768 60.132742 us
+65536 116.284370 us
+131072 230.000734 us
+262144 453.675270 us
+524288 892.132998 us
+1048576 1761.965513 us
+2097152 3819.307566 us
+4194304 7593.727350 us
+Process 0 of 16 is on tcag-0001
+Process 9 of 16 is on tcag-0010
+Process 11 of 16 is on tcag-0012
+Process 2 of 16 is on tcag-0003
+Process 6 of 16 is on tcag-0007
+Process 10 of 16 is on tcag-0011
+Process 1 of 16 is on tcag-0002
+Process 4 of 16 is on tcag-0005
+Process 15 of 16 is on tcag-0016
+Process 8 of 16 is on tcag-0009
+Process 12 of 16 is on tcag-0013
+Process 5 of 16 is on tcag-0006
+Process 14 of 16 is on tcag-0015
+Process 7 of 16 is on tcag-0008
+Process 13 of 16 is on tcag-0014
+Process 3 of 16 is on tcag-0004
+8 5.654097 us
+16 5.459547 us
+32 5.377531 us
+64 5.373955 us
+128 5.319834 us
+256 5.386829 us
+512 5.462170 us
+1024 5.558014 us
+2048 5.926371 us
+4096 11.737585 us
+8192 18.111944 us
+16384 32.107353 us
+32768 60.446978 us
+65536 116.165161 us
+131072 226.982355 us
+262144 450.809002 us
+524288 899.937391 us
+1048576 1790.650606 us
+2097152 3840.405703 us
+4194304 7667.196274 us
+Process 0 of 16 is on tcag-0001
+Process 9 of 16 is on tcag-0010
+Process 11 of 16 is on tcag-0012
+Process 10 of 16 is on tcag-0011
+Process 2 of 16 is on tcag-0003
+Process 6 of 16 is on tcag-0007
+Process 1 of 16 is on tcag-0002
+Process 4 of 16 is on tcag-0005
+Process 15 of 16 is on tcag-0016
+Process 8 of 16 is on tcag-0009
+Process 12 of 16 is on tcag-0013
+Process 5 of 16 is on tcag-0006
+Process 14 of 16 is on tcag-0015
+Process 13 of 16 is on tcag-0014
+Process 7 of 16 is on tcag-0008
+Process 3 of 16 is on tcag-0004
+8 5.515814 us
+16 5.463362 us
+32 5.408525 us
+64 5.355835 us
+128 5.495071 us
+256 5.447388 us
+512 5.468607 us
+1024 5.638599 us
+2048 6.022930 us
+4096 11.825085 us
+8192 18.357277 us
+16384 33.019304 us
+32768 59.787273 us
+65536 114.177704 us
+131072 222.740889 us
+262144 436.263561 us
+524288 883.494377 us
+1048576 1791.733742 us
+2097152 3802.496910 us
+4194304 7645.868063 us
+Process 0 of 16 is on tcag-0001
+Process 11 of 16 is on tcag-0012
+Process 9 of 16 is on tcag-0010
+Process 10 of 16 is on tcag-0011
+Process 2 of 16 is on tcag-0003
+Process 6 of 16 is on tcag-0007
+Process 1 of 16 is on tcag-0002
+Process 4 of 16 is on tcag-0005
+Process 15 of 16 is on tcag-0016
+Process 8 of 16 is on tcag-0009
+Process 12 of 16 is on tcag-0013
+Process 5 of 16 is on tcag-0006
+Process 14 of 16 is on tcag-0015
+Process 13 of 16 is on tcag-0014
+Process 7 of 16 is on tcag-0008
+Process 3 of 16 is on tcag-0004
+8 5.318165 us
+16 5.244732 us
+32 5.220175 us
+64 5.442381 us
+128 5.323887 us
+256 5.189419 us
+512 5.255699 us
+1024 5.465746 us
+2048 5.872250 us
+4096 11.617661 us
+8192 18.148422 us
+16384 32.404184 us
+32768 61.405659 us
+65536 118.592262 us
+131072 234.604359 us
+262144 466.752052 us
+524288 922.851086 us
+1048576 1813.855410 us
+2097152 3863.184929 us
+4194304 7663.874865 us
+Process 0 of 16 is on tcag-0001
+Process 11 of 16 is on tcag-0012
+Process 9 of 16 is on tcag-0010
+Process 10 of 16 is on tcag-0011
+Process 2 of 16 is on tcag-0003
+Process 6 of 16 is on tcag-0007
+Process 1 of 16 is on tcag-0002
+Process 4 of 16 is on tcag-0005
+Process 15 of 16 is on tcag-0016
+Process 8 of 16 is on tcag-0009
+Process 12 of 16 is on tcag-0013
+Process 5 of 16 is on tcag-0006
+Process 14 of 16 is on tcag-0015
+Process 13 of 16 is on tcag-0014
+Process 7 of 16 is on tcag-0008
+Process 3 of 16 is on tcag-0004
+8 5.396366 us
+16 5.324602 us
+32 5.395174 us
+64 5.359888 us
+128 5.300045 us
+256 5.511045 us
+512 5.506992 us
+1024 5.537271 us
+2048 5.914211 us
+4096 11.750698 us
+8192 18.231869 us
+16384 32.383442 us
+32768 61.766148 us
+65536 119.431734 us
+131072 235.176563 us
+262144 465.714216 us
+524288 910.576582 us
+1048576 1770.666838 us
+2097152 3880.383730 us
+4194304 7663.438082 us
+Process 0 of 16 is on tcag-0001
+Process 11 of 16 is on tcag-0012
+Process 9 of 16 is on tcag-0010
+Process 10 of 16 is on tcag-0011
+Process 2 of 16 is on tcag-0003
+Process 6 of 16 is on tcag-0007
+Process 1 of 16 is on tcag-0002
+Process 4 of 16 is on tcag-0005
+Process 15 of 16 is on tcag-0016
+Process 8 of 16 is on tcag-0009
+Process 12 of 16 is on tcag-0013
+Process 5 of 16 is on tcag-0006
+Process 14 of 16 is on tcag-0015
+Process 7 of 16 is on tcag-0008
+Process 13 of 16 is on tcag-0014
+Process 3 of 16 is on tcag-0004
+8 5.335331 us
+16 5.214930 us
+32 6.797075 us
+64 5.289793 us
+128 5.295992 us
+256 5.318880 us
+512 5.373716 us
+1024 5.703211 us
+2048 6.102324 us
+4096 11.750937 us
+8192 18.042564 us
+16384 32.204628 us
+32768 60.552120 us
+65536 117.588758 us
+131072 231.280327 us
+262144 451.804161 us
+524288 883.764267 us
+1048576 1780.057907 us
+2097152 3843.715668 us
+4194304 7658.070326 us
+Process 0 of 16 is on tcag-0001
+Process 11 of 16 is on tcag-0012
+Process 9 of 16 is on tcag-0010
+Process 10 of 16 is on tcag-0011
+Process 2 of 16 is on tcag-0003
+Process 1 of 16 is on tcag-0002
+Process 4 of 16 is on tcag-0005
+Process 15 of 16 is on tcag-0016
+Process 6 of 16 is on tcag-0007
+Process 8 of 16 is on tcag-0009
+Process 12 of 16 is on tcag-0013
+Process 5 of 16 is on tcag-0006
+Process 14 of 16 is on tcag-0015
+Process 7 of 16 is on tcag-0008
+Process 13 of 16 is on tcag-0014
+Process 3 of 16 is on tcag-0004
+8 5.226851 us
+16 5.265713 us
+32 5.316257 us
+64 5.297899 us
+128 5.184650 us
+256 5.270481 us
+512 5.282402 us
+1024 5.478382 us
+2048 5.775452 us
+4096 11.694193 us
+8192 17.970085 us
+16384 31.967163 us
+32768 59.102297 us
+65536 113.522291 us
+131072 223.915339 us
+262144 442.851067 us
+524288 880.650997 us
+1048576 1770.922899 us
+2097152 3847.479105 us
+4194304 7666.929722 us

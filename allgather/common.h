@@ -8,5 +8,5 @@
 #include "cuda-help.h"
 
 #define COUNT 1024*64
-#define WARMUP 50
-#define TIMES 1000
+#define WARMUP  50
+#define TIMES 100

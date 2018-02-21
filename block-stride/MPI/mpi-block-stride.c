@@ -11,82 +11,85 @@ void verify(double *host, int row, int column, int depth, int my_rank)
 	  printf("Error1\n");
       }
 
-  int other = (my_rank+1)%2;  
+  int target = (my_rank+1)%2;  
   for(int i=0; i<row; i++){
     int j = column-1;
     for(int k=0; k<depth; k++){
-      if(fabs(host[i*(column*depth)+j*depth+k] - (double)((other+1)*(i*(column*depth)+0*depth+k))) > 1e-18)
+      if(fabs(host[i*(column*depth)+j*depth+k] - (double)((target+1)*(i*(column*depth)+0*depth+k))) > 1e-18)
 	printf("Error2 [%d] host[%d[%d][%d] %f != %f\n", 
-	       my_rank, i, column-1, k, host[i*(column*depth)+j*depth+k], (double)((other+1)*(i*(column*depth)+0*depth+k)));
+	       my_rank, i, column-1, k, host[i*(column*depth)+j*depth+k], (double)((target+1)*(i*(column*depth)+0*depth+k)));
     }
   }
 }
 
-int main(int argc, char** argv)
+static void block_stride(const int count, const int my_rank, const int output_flag)
 {
-  int row, column, depth, my_rank, other;
-  size_t cube_byte, matrix_byte;
+  int row, column, depth;
+  row = column = depth = count;
+  int target = (my_rank + 1) % 2;
+  size_t cube_byte   = row * column * depth * sizeof(double);
+  size_t matrix_byte = row * depth * sizeof(double);
   double *host_cube, *device_cube, *tmp_matrix;
   double start, end;
-  
-  MPI_SAFE_CALL(MPI_Init(&argc, &argv));
-  MPI_SAFE_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &my_rank));
-  other = (my_rank+1)%2;
-  CUDA_SAFE_CALL(cudaSetDevice(0));
+  CUDA_SAFE_CALL(cudaMallocHost((void**)&host_cube, cube_byte));
+  CUDA_SAFE_CALL(cudaMalloc((void**)&device_cube, cube_byte));
+  CUDA_SAFE_CALL(cudaMalloc((void**)&tmp_matrix, matrix_byte));
 
-  for(int count=2; count<=COUNT; count*=2) {
-    row         = column = depth = count;
-    cube_byte   = row * column * depth * sizeof(double);
-    matrix_byte = row * depth * sizeof(double);
+  for(int i=0; i<row; i++)
+    for(int j=0; j<column; j++)
+      for(int k=0; k<depth; k++)
+	host_cube[i*(column*depth)+j*depth+k] = (double)((my_rank+1)*(i*(column*depth)+j*depth+k));
 
-    CUDA_SAFE_CALL(cudaMallocHost((void**)&host_cube, cube_byte));
-    CUDA_SAFE_CALL(cudaMalloc((void**)&device_cube, cube_byte));
-    CUDA_SAFE_CALL(cudaMalloc((void**)&tmp_matrix, matrix_byte));
+  CUDA_SAFE_CALL(cudaMemcpy(device_cube, host_cube, cube_byte, cudaMemcpyDefault));
+  MPI_Barrier(MPI_COMM_WORLD);
 
-    for(int i=0; i<row; i++)
-      for(int j=0; j<column; j++)
-	for(int k=0; k<depth; k++)
-	  host_cube[i*(column*depth)+j*depth+k] = (double)((my_rank+1)*(i*(column*depth)+j*depth+k));
-
-    CUDA_SAFE_CALL(cudaMemcpy(device_cube, host_cube, cube_byte, cudaMemcpyDefault));
-    MPI_Barrier(MPI_COMM_WORLD);
-
-    for(int t=0; t<TIMES+WARMUP; t++){
-      if(t == WARMUP){
-	MPI_Barrier(MPI_COMM_WORLD);
-	start = MPI_Wtime();
-      }
-
-      if(my_rank == 0){
-	call_pack(device_cube, tmp_matrix, row, column, depth);
-	MPI_SAFE_CALL(MPI_Send(tmp_matrix, row*depth, MPI_DOUBLE, other, 0, MPI_COMM_WORLD));
-
-	MPI_SAFE_CALL(MPI_Recv(tmp_matrix, row*depth, MPI_DOUBLE, other, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
-	call_unpack(tmp_matrix, device_cube, row, column, depth);
-      } 
-      else{
-	MPI_SAFE_CALL(MPI_Recv(tmp_matrix, row*depth, MPI_DOUBLE, other, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
-	call_unpack(tmp_matrix, device_cube, row, column, depth);
-
-	call_pack(device_cube, tmp_matrix, row, column, depth);
-	MPI_SAFE_CALL(MPI_Send(tmp_matrix, row*depth, MPI_DOUBLE, other, 1, MPI_COMM_WORLD));
-      }
+  for(int t=0; t<TIMES+WARMUP; t++){
+    if(t == WARMUP){
+      MPI_Barrier(MPI_COMM_WORLD);
+      start = MPI_Wtime();
     }
 
-    MPI_Barrier(MPI_COMM_WORLD);
-    end = MPI_Wtime();
-    CUDA_SAFE_CALL(cudaMemcpy(host_cube, device_cube, cube_byte, cudaMemcpyDefault));
-    verify(host_cube, row, column, depth, my_rank);
+    if(my_rank == 0){
+      call_pack(device_cube, tmp_matrix, row, column, depth);
+      MPI_SAFE_CALL(MPI_Send(tmp_matrix, row*depth, MPI_DOUBLE, target, 0, MPI_COMM_WORLD));
 
-    double one_way_comm_time = ((end - start)/TIMES/2)*1e6;
-    double bandwidth         = matrix_byte / one_way_comm_time;
-    if(my_rank == 0)
-      printf("N = %d one_way_comm_time = %lf [usec], bandwidth = %lf [MB/s]\n", count, one_way_comm_time, bandwidth);
-    
-    CUDA_SAFE_CALL(cudaFreeHost(host_cube));
-    CUDA_SAFE_CALL(cudaFree(device_cube));
-    CUDA_SAFE_CALL(cudaFree(tmp_matrix));
+      MPI_SAFE_CALL(MPI_Recv(tmp_matrix, row*depth, MPI_DOUBLE, target, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
+      call_unpack(tmp_matrix, device_cube, row, column, depth);
+    }
+    else{
+      MPI_SAFE_CALL(MPI_Recv(tmp_matrix, row*depth, MPI_DOUBLE, target, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
+      call_unpack(tmp_matrix, device_cube, row, column, depth);
+
+      call_pack(device_cube, tmp_matrix, row, column, depth);
+      MPI_SAFE_CALL(MPI_Send(tmp_matrix, row*depth, MPI_DOUBLE, target, 1, MPI_COMM_WORLD));
+    }
   }
+
+  MPI_Barrier(MPI_COMM_WORLD);
+  end = MPI_Wtime();
+  CUDA_SAFE_CALL(cudaMemcpy(host_cube, device_cube, cube_byte, cudaMemcpyDefault));
+  verify(host_cube, row, column, depth, my_rank);
+
+  double one_way_comm_time = ((end - start)/TIMES/2)*1e6;
+  double bandwidth         = matrix_byte / one_way_comm_time;
+  if(my_rank == 0 && output_flag == 1)
+    printf("N = %d one_way_comm_time = %lf [usec], bandwidth = %lf [MB/s]\n", count, one_way_comm_time, bandwidth);
+
+  CUDA_SAFE_CALL(cudaFreeHost(host_cube));
+  CUDA_SAFE_CALL(cudaFree(device_cube));
+  CUDA_SAFE_CALL(cudaFree(tmp_matrix));
+}
+
+int main(int argc, char** argv)
+{
+  int my_rank; 
+  MPI_SAFE_CALL(MPI_Init(&argc, &argv));
+  MPI_SAFE_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &my_rank));
+  CUDA_SAFE_CALL(cudaSetDevice(0));
+
+  block_stride(2, my_rank, 0); // Dry run
+  for(int count=2; count<=COUNT; count*=2)
+    block_stride(count, my_rank, 1);
   
   MPI_SAFE_CALL(MPI_Finalize());
   

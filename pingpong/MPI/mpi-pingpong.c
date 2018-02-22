@@ -58,10 +58,13 @@ static void pingpong(const int count, const int my_rank, const int output_flag)
 
 int main(int argc, char** argv)
 {
-  int my_rank;
+  int my_rank, namelen;
+  char processor_name[MPI_MAX_PROCESSOR_NAME];
 
   MPI_SAFE_CALL(MPI_Init(&argc, &argv));
   MPI_SAFE_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &my_rank));
+  MPI_Get_processor_name(processor_name, &namelen);
+  fprintf(stdout,"Process %d on %s\n", my_rank, processor_name);
 
   CUDA_SAFE_CALL(cudaSetDevice(0));
 

@@ -15,7 +15,7 @@ __global__ static void pack_matrix(double* __restrict__ device_cube,
   int ivx = IDXV(threadIdx.x, blockIdx.x, blockDim.x);
   while(ivx < n*n){
     int z = ivx / n;
-    int x = ivx - z*n;
+    int x = ivx - z * n;
     tmp_matrix[ivx] = device_cube[z*n*n+index*n+x];
     ivx += blockDim.x * gridDim.x;
   }

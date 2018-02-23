@@ -96,7 +96,7 @@ static void stencil(const int n, const int my_rank, const int output_flag)
       MPI_SAFE_CALL(MPI_Isend(&device_cube[0],         n*n, MPI_DOUBLE, 1, 0, MPI_COMM_WORLD, &req[0]));
       MPI_SAFE_CALL(MPI_Isend(&device_cube[(n-1)*n*n], n*n, MPI_DOUBLE, 3, 0, MPI_COMM_WORLD, &req[1]));
 
-      call_pack(device_cube, tmp_matrix_lo, n, n-1);
+      call_pack(device_cube, tmp_matrix_hi, n, n-1);
       MPI_SAFE_CALL(MPI_Isend(tmp_matrix_hi,           n*n, MPI_DOUBLE, 2, 0, MPI_COMM_WORLD, &req[2]));
 
       call_pack(device_cube, tmp_matrix_lo, n, 0);

@@ -112,11 +112,11 @@ static void stencil(const int n, const int my_rank, const int output_flag)
     }
     else if(my_rank == 2){
       MPI_SAFE_CALL(MPI_Recv(tmp_matrix_lo,           n*n, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
-      call_unpack(tmp_matrix, device_cube, n, 0);
+      call_unpack(tmp_matrix_lo, device_cube, n, 0);
     }
     else if(my_rank == 4){
       MPI_SAFE_CALL(MPI_Recv(tmp_matrix_hi,           n*n, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
-      call_unpack(tmp_matrix, device_cube, n, n-1);
+      call_unpack(tmp_matrix_hi, device_cube, n, n-1);
     }
   }
 
@@ -132,7 +132,8 @@ static void stencil(const int n, const int my_rank, const int output_flag)
 
   CUDA_SAFE_CALL(cudaFreeHost(host_cube));
   CUDA_SAFE_CALL(cudaFree(device_cube));
-  CUDA_SAFE_CALL(cudaFree(tmp_matrix));
+  CUDA_SAFE_CALL(cudaFree(tmp_matrix_lo));
+  CUDA_SAFE_CALL(cudaFree(tmp_matrix_hi));
 }
 
 int main(int argc, char** argv)

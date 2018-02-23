@@ -31,7 +31,7 @@ __global__ static void unpack_matrix(double* __restrict__ tmp_matrix,
   //      device_cube[z*n*n+index*n+x] = tmp_matrix[z*n+x];
 
   int ivx = IDXV(threadIdx.x, blockIdx.x, blockDim.x);
-  while(ivx < row*depth){
+  while(ivx < n*n){
     int z = ivx / n;
     int x = ivx - z * n;
     device_cube[z*n*n+index*n+x] = tmp_matrix[ivx];

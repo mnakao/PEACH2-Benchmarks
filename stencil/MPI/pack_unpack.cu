@@ -5,36 +5,36 @@
 
 __global__ static void pack_matrix(double* __restrict__ device_cube,
                                    double* __restrict__ tmp_matrix,
-                                   const int row, const int column, const int depth)
+                                   const int n, const int index)
 {
-  //  for(int i=0; i<row; i++)
-  //    for(int k=0; k<depth; k++)
-  //      tmp_matrix[i][k] = device_cube[i][0][k];
-  //      tmp_matrix[i*N+k] = device_cube[i*N*N+k];
+  //  for(int z=0; z<n; z++)
+  //    for(int x=0; x<n; x++)
+  //      tmp_matrix[z][x]  = device_cube[z][index][x];
+  //      tmp_matrix[z*n+x] = device_cube[z*n*n+index*n+x];
 
   int ivx = IDXV(threadIdx.x, blockIdx.x, blockDim.x);
-  while(ivx < row*depth){
-    int i = ivx / row;
-    int k = ivx - i * row;
-    tmp_matrix[ivx] = device_cube[i*column*depth + k];
+  while(ivx < n*n){
+    int z = ivx / n;
+    int x = ivx - z*n;
+    tmp_matrix[ivx] = device_cube[z*n*n+index*n+x];
     ivx += blockDim.x * gridDim.x;
   }
 }
 
 __global__ static void unpack_matrix(double* __restrict__ tmp_matrix,
                                      double* __restrict__ device_cube,
-                                     const int row, const int column, const int depth)
+				     const int n, const int index)
 {
-  //  for(int i=0; i<row; i++)
-  //    for(int k=0; k<depth; k++)
-  //      device_cube[i][column-1][k] = tmp_matrix[i][k];
-  ////    device_cube[i*N*N+(column-1)*N+k] = tmp_matrix[i*N+k];
+  //  for(int z=0; z<n; z++)
+  //    for(int x=0; x<n; x++)
+  //      device_cube[z][index][x] = tmp_matrix[z][x];
+  //      device_cube[z*n*n+index*n+x] = tmp_matrix[z*n+x];
 
   int ivx = IDXV(threadIdx.x, blockIdx.x, blockDim.x);
   while(ivx < row*depth){
-    int i = ivx / row;
-    int k = ivx - i * row;
-    device_cube[i*column*depth+(column-1)*depth+k] = tmp_matrix[ivx];
+    int z = ivx / n;
+    int x = ivx - z * n;
+    device_cube[z*n*n+index*n+x] = tmp_matrix[ivx];
     ivx += blockDim.x * gridDim.x;
   }
 }
@@ -42,17 +42,17 @@ __global__ static void unpack_matrix(double* __restrict__ tmp_matrix,
 extern "C"
 void call_pack(double* __restrict__ device_cube,
 	       double* __restrict__ tmp_matrix,
-	       const int row, const int column, const int depth)
+	       const int n, const int index)
 {
-  pack_matrix <<< grid, block >>> (device_cube, tmp_matrix, row, column, depth);
+  pack_matrix <<< grid, block >>> (device_cube, tmp_matrix, n, index);
   cudaDeviceSynchronize();
 }
 
 extern "C"
 void call_unpack(double* __restrict__ tmp_matrix,
 		 double* __restrict__ device_cube,
-		 const int row, const int column, const int depth)
+		 const int n, const int index)
 {
-  unpack_matrix <<< grid, block >>> (tmp_matrix, device_cube, row, column, depth);
+  unpack_matrix <<< grid, block >>> (tmp_matrix, device_cube, n, index);
   cudaDeviceSynchronize();
 }

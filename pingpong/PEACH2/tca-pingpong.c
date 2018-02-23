@@ -82,8 +82,6 @@ int main(int argc, char** argv)
   MPI_SAFE_CALL(MPI_Init(&argc, &argv));
   MPI_SAFE_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &my_rank));
   TCA_SAFE_CALL(tcaInit());
-  TCA_SAFE_CALL(  tcaReset());
-  MPI_SAFE_CALL(MPI_Finalize());  return 0;
   CUDA_SAFE_CALL(cudaSetDevice(0));
 
   pingpong(1, my_rank, 0); // Dry run

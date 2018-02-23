@@ -3,62 +3,57 @@
 #define WAIT_TAG (0x100)
 #define DMA_FLAG (tcaDMAUseInternal|tcaDMAUseNotifyInternal|tcaDMANotify|tcaDMANotifySelf)
 
-static void verify(double *host, int row, int column, int depth, int my_rank)
+static void verify(double *host, int n, int my_rank)
 {
-  for(int i=0; i<row; i++)
-    for(int j=0; j<column-1; j++)
-      for(int k=0; k<depth; k++){
-        if(fabs(host[i*(column*depth)+j*depth+k] - (double)((my_rank+1)*(i*(column*depth)+j*depth+k))) > 1e-18)
+  for(int i=0; i<n; i++)
+    for(int j=0; j<n-1; j++)
+      for(int k=0; k<n; k++){
+        if(fabs(host[i*(n*n)+j*n+k] - (double)((my_rank+1)*(i*(n*n)+j*n+k))) > 1e-18)
           printf("Error1\n");
       }
 
   int target = (my_rank+1)%2;
-  for(int i=0; i<row; i++){
-    int j = column-1;
-    for(int k=0; k<depth; k++){
-      if(fabs(host[i*(column*depth)+j*depth+k] - (double)((target+1)*(i*(column*depth)+0*depth+k))) > 1e-18)
+  for(int i=0; i<n; i++){
+    int j = n-1;
+    for(int k=0; k<n; k++){
+      if(fabs(host[i*(n*n)+(n-1)*n+k] - (double)((target+1)*(i*(n*n)+k))) > 1e-18)
         printf("Error2 [%d] host[%d[%d][%d] %f != %f\n",
-               my_rank, i, column-1, k, host[i*(column*depth)+j*depth+k], (double)((target+1)*(i*(column*depth)+0*depth+k)));
+               my_rank, i, n-1, k, host[i*(n*n)+j*n+k], (double)((target+1)*(i*(n*n)+k)));
     }
   }
 }
 
-static void block_stride(const int count, const int my_rank, const int output_flag)
+static void block_stride(const int n, const int my_rank, const int output_flag)
 {
-  int row, column, depth;
-  row = column = depth = count;
   int target = (my_rank + 1) % 2;
-  size_t cube_byte   = row * column * depth * sizeof(double);
-  size_t matrix_byte = row * depth * sizeof(double);
+  size_t cube_byte   = n * n * n * sizeof(double);
+  size_t matrix_byte = n * n * sizeof(double);
   double *host_cube, *device_cube;
   double start, end;
   tcaHandle *cube_handle;
-  int dma_slot = 0;
-  int desc_tag = 0;
 
   CUDA_SAFE_CALL(cudaMallocHost((void**)&host_cube, cube_byte));
   TCA_SAFE_CALL(tcaMalloc((void**)&device_cube, cube_byte, tcaMemoryGPU));
   tcaCreateHandleList(&cube_handle, 2, device_cube, cube_byte);
 
-  for(int i=0; i<row; i++)
-    for(int j=0; j<column; j++)
-      for(int k=0; k<depth; k++)
-	host_cube[i*(column*depth)+j*depth+k] = (double)((my_rank+1)*(i*(column*depth)+j*depth+k));
+  for(int i=0; i<n; i++)
+    for(int j=0; j<n; j++)
+      for(int k=0; k<n; k++)
+	host_cube[i*(n*n)+j*n+k] = (double)((my_rank+1)*(i*(n*n)+j*n+k));
 
   CUDA_SAFE_CALL(cudaMemcpy(device_cube, host_cube, cube_byte, cudaMemcpyDefault));
-  TCA_SAFE_CALL(tcaCreateDMADesc(&desc_tag, 1024));
 
   off_t src_offset = 0;
-  off_t dst_offset = (column-1)*depth*sizeof(double);
-  size_t pitch = (column*depth)*sizeof(double);
-  size_t width = depth*sizeof(double);
+  off_t dst_offset = (n-1)*n*sizeof(double);
+  size_t pitch = (n*n)*sizeof(double);
+  size_t width = n*sizeof(double);
 
-  TCA_SAFE_CALL(tcaSetDMADesc_Memcpy2D(desc_tag, dma_slot, &dma_slot,
-				       &cube_handle[target], dst_offset, pitch,
-				       &cube_handle[my_rank], src_offset, pitch,
-				       width, row, DMA_FLAG, 0, WAIT_TAG));
-  TCA_SAFE_CALL(tcaSetDMAChain(DMA_CH, desc_tag));
-
+  tcaDesc* desc = tcaDescNew();
+  TCA_SAFE_CALL(tcaDescSetMemcpy2D(desc, 
+				   &cube_handle[target], dst_offset, pitch,
+				   &cube_handle[my_rank], src_offset, pitch,
+				   width, n, DMA_FLAG, 0, WAIT_TAG));
+  TCA_SAFE_CALL(tcaDescSet(desc, DMA_CH));
   MPI_Barrier(MPI_COMM_WORLD);
   for(int t = 0; t <TIMES+WARMUP; t++) {
     if(t == WARMUP){
@@ -81,16 +76,17 @@ static void block_stride(const int count, const int my_rank, const int output_fl
   MPI_Barrier(MPI_COMM_WORLD);
   end = MPI_Wtime();
   CUDA_SAFE_CALL(cudaMemcpy(host_cube, device_cube, cube_byte, cudaMemcpyDefault));
-  verify(host_cube, row, column, depth, my_rank);
+  verify(host_cube, n, my_rank);
   
   double one_way_comm_time = ((end - start)/TIMES/2)*1e6;
   double bandwidth         = matrix_byte / one_way_comm_time;
   if(my_rank == 0 && output_flag == 1)
-    printf("N = %d one_way_comm_time = %lf [usec], bandwidth = %lf [MB/s]\n", count, one_way_comm_time, bandwidth);
+    printf("N = %d one_way_comm_time = %lf [usec], bandwidth = %lf [MB/s]\n", n, one_way_comm_time, bandwidth);
 
-  TCA_SAFE_CALL(tcaDestroyDMADesc(desc_tag));
+  TCA_SAFE_CALL(tcaDescFree(desc));
   CUDA_SAFE_CALL(cudaFreeHost(host_cube));
   TCA_SAFE_CALL(tcaFree(device_cube, tcaMemoryGPU));
+  free(cube_handle);
 }
 
 int main(int argc, char** argv)

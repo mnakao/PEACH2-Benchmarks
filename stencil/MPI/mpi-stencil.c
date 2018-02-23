@@ -8,13 +8,13 @@ void verify(double *host, int n, int my_rank)
     for(int z=0; z<n-1; z++)
       for(int y=0; y<n; y++)
         for(int x=0; x<n; x++)
-          if(fabs(host[z*(n*n)+y*n+x] - (double)((my_rank+1)*(z*(n*n)+y*n+x))) > 1e-16){
+          if(fabs(host[z*(n*n)+y*n+x] - (double)(my_rank+1)) > 1e-16){
             printf("Error1\n");
             break;
           }
     for(int y=0; y<n; y++)
       for(int x=0; x<n; x++)
-	if(fabs(host[(n-1)*(n*n)+y*n+x] - (double)(((n-1)*(n*n)+y*n+x))) > 1e-16){
+	if(fabs(host[(n-1)*(n*n)+y*n+x] - 1.0) > 1e-16){
 	  printf("Error2\n");
 	  break;
 	}
@@ -23,13 +23,13 @@ void verify(double *host, int n, int my_rank)
     for(int z=1; z<n; z++)
       for(int y=0; y<n; y++)
         for(int x=0; x<n; x++)
-          if(fabs(host[z*(n*n)+y*n+x] - (double)((my_rank+1)*(z*(n*n)+y*n+x))) > 1e-16){
+          if(fabs(host[z*(n*n)+y*n+x] - (double)(my_rank+1)) > 1e-16){
             printf("[%d] Error1\n", my_rank);
             break;
           }
     for(int y=0; y<n; y++)
       for(int x=0; x<n; x++)
-        if(fabs(host[y*n+x] - (double)((y*n+x))) > 1e-16){
+        if(fabs(host[y*n+x] - 1.0)) > 1e-16){
 	  printf("[%d] Error2\n", my_rank);
           break;
         }
@@ -38,13 +38,13 @@ void verify(double *host, int n, int my_rank)
     for(int z=0; z<n; z++)
       for(int y=1; y<n; y++)
         for(int x=0; x<n; x++)
-          if(fabs(host[z*(n*n)+y*n+x] - (double)((my_rank+1)*(z*(n*n)+y*n+x))) > 1e-16){
+          if(fabs(host[z*(n*n)+y*n+x] - (double)(my_rank+1)) > 1e-16){
 	    printf("[%d] Error1\n", my_rank);
             break;
           }
     for(int z=0; z<n; z++)
       for(int x=0; x<n; x++)
-        if(fabs(host[z*(n*n)+x] - (double)((my_rank+1)*(z*(n*n)+x))) > 1e-16){
+        if(fabs(host[z*(n*n)+x] - 1.0) > 1e-16){
 	    printf("[%d] Error2\n", my_rank);
             break;
           }
@@ -53,13 +53,13 @@ void verify(double *host, int n, int my_rank)
     for(int z=0; z<n; z++)
       for(int y=0; y<n-1; y++)
         for(int x=0; x<n; x++)
-          if(fabs(host[z*(n*n)+y*n+x] - (double)((my_rank+1)*(z*(n*n)+y*n+x))) > 1e-16){
+          if(fabs(host[z*(n*n)+y*n+x] - (double)(my_rank+1)) > 1e-16){
 	    printf("[%d] Error1\n", my_rank);
             break;
           }
     for(int z=0; z<n; z++)
       for(int x=0; x<n; z++)
-        if(fabs(host[z*(n*n)+(n-1)*n+x] - (double)((z*(n*n)+(n-1)*n+x))) > 1e-16){
+        if(fabs(host[z*(n*n)+(n-1)*n+x] - 1.0) > 1e-16){
 	  printf("[%d] Error2\n", my_rank);
 	  break;
 	}
@@ -80,7 +80,7 @@ static void stencil(const int n, const int my_rank, const int output_flag)
   for(int z=0; z<n; z++)
     for(int y=0; y<n; y++)
       for(int x=0; x<n; x++)
-	host_cube[z*(n*n)+y*n+x] = (double)((my_rank+1)*(z*(n*n)+y*n+x));
+	host_cube[z*(n*n)+y*n+x] = (double)(my_rank+1);
 
   CUDA_SAFE_CALL(cudaMemcpy(device_cube, host_cube, cube_byte, cudaMemcpyDefault));
   MPI_Barrier(MPI_COMM_WORLD);

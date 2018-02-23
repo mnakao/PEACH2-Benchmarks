@@ -1,44 +1,38 @@
 #include "common.h"
-extern void call_pack(double* __restrict__, double* __restrict__, const int, const int, const int);
-extern void call_unpack(double* __restrict__, double* __restrict__, const int, const int, const int);
+extern void call_pack(double* __restrict__, double* __restrict__, const int);
+extern void call_unpack(double* __restrict__, double* __restrict__, const int);
 
-void verify(double *host, int row, int column, int depth, int my_rank)
+void verify(double *host, int n, int my_rank)
 {
-  for(int i=0; i<row; i++) 
-    for(int j=0; j<column-1; j++) 
-      for(int k=0; k<depth; k++){
-	if(fabs(host[i*(column*depth)+j*depth+k] - (double)((my_rank+1)*(i*(column*depth)+j*depth+k))) > 1e-18)
+  for(int i=0; i<n; i++) 
+    for(int j=0; j<n-1; j++) 
+      for(int k=0; k<n; k++)
+	if(fabs(host[i*(n*n)+j*n+k] - (double)((my_rank+1)*(i*(n*n)+j*n+k))) > 1e-18)
 	  printf("Error1\n");
-      }
 
   int target = (my_rank+1)%2;  
-  for(int i=0; i<row; i++){
-    int j = column-1;
-    for(int k=0; k<depth; k++){
-      if(fabs(host[i*(column*depth)+j*depth+k] - (double)((target+1)*(i*(column*depth)+0*depth+k))) > 1e-18)
+  for(int i=0; i<n; i++)
+    for(int k=0; k<n; k++)
+      if(fabs(host[i*(n*n)+(n-1)*n+k] - (double)((target+1)*(i*(n*n)+k))) > 1e-18)
 	printf("Error2 [%d] host[%d[%d][%d] %f != %f\n", 
-	       my_rank, i, column-1, k, host[i*(column*depth)+j*depth+k], (double)((target+1)*(i*(column*depth)+0*depth+k)));
-    }
-  }
+	       my_rank, i, n-1, k, host[i*(n*n)+(n-1)*n+k], (double)((target+1)*(i*(n*n)+k)));
 }
 
-static void block_stride(const int count, const int my_rank, const int output_flag)
+static void block_stride(const int n, const int my_rank, const int output_flag)
 {
-  int row, column, depth;
-  row = column = depth = count;
   int target = (my_rank + 1) % 2;
-  size_t cube_byte   = row * column * depth * sizeof(double);
-  size_t matrix_byte = row * depth * sizeof(double);
+  size_t cube_byte   = n * n * n * sizeof(double);
+  size_t matrix_byte = n * n * sizeof(double);
   double *host_cube, *device_cube, *tmp_matrix;
   double start, end;
   CUDA_SAFE_CALL(cudaMallocHost((void**)&host_cube, cube_byte));
   CUDA_SAFE_CALL(cudaMalloc((void**)&device_cube, cube_byte));
   CUDA_SAFE_CALL(cudaMalloc((void**)&tmp_matrix, matrix_byte));
 
-  for(int i=0; i<row; i++)
-    for(int j=0; j<column; j++)
-      for(int k=0; k<depth; k++)
-	host_cube[i*(column*depth)+j*depth+k] = (double)((my_rank+1)*(i*(column*depth)+j*depth+k));
+  for(int i=0; i<n; i++)
+    for(int j=0; j<n; j++)
+      for(int k=0; k<n; k++)
+	host_cube[i*(n*n)+j*n+k] = (double)((my_rank+1)*(i*(n*n)+j*n+k));
 
   CUDA_SAFE_CALL(cudaMemcpy(device_cube, host_cube, cube_byte, cudaMemcpyDefault));
   MPI_Barrier(MPI_COMM_WORLD);
@@ -50,25 +44,25 @@ static void block_stride(const int count, const int my_rank, const int output_fl
     }
 
     if(my_rank == 0){
-      call_pack(device_cube, tmp_matrix, row, column, depth);
-      MPI_SAFE_CALL(MPI_Send(tmp_matrix, row*depth, MPI_DOUBLE, target, 0, MPI_COMM_WORLD));
+      call_pack(device_cube, tmp_matrix, n);
+      MPI_SAFE_CALL(MPI_Send(tmp_matrix, n*n, MPI_DOUBLE, target, 0, MPI_COMM_WORLD));
 
-      MPI_SAFE_CALL(MPI_Recv(tmp_matrix, row*depth, MPI_DOUBLE, target, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
-      call_unpack(tmp_matrix, device_cube, row, column, depth);
+      MPI_SAFE_CALL(MPI_Recv(tmp_matrix, n*n, MPI_DOUBLE, target, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
+      call_unpack(tmp_matrix, device_cube, n);
     }
     else{
-      MPI_SAFE_CALL(MPI_Recv(tmp_matrix, row*depth, MPI_DOUBLE, target, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
-      call_unpack(tmp_matrix, device_cube, row, column, depth);
+      MPI_SAFE_CALL(MPI_Recv(tmp_matrix, n*n, MPI_DOUBLE, target, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
+      call_unpack(tmp_matrix, device_cube, n);
 
-      call_pack(device_cube, tmp_matrix, row, column, depth);
-      MPI_SAFE_CALL(MPI_Send(tmp_matrix, row*depth, MPI_DOUBLE, target, 1, MPI_COMM_WORLD));
+      call_pack(device_cube, tmp_matrix, n);
+      MPI_SAFE_CALL(MPI_Send(tmp_matrix, n*n, MPI_DOUBLE, target, 1, MPI_COMM_WORLD));
     }
   }
 
   MPI_Barrier(MPI_COMM_WORLD);
   end = MPI_Wtime();
   CUDA_SAFE_CALL(cudaMemcpy(host_cube, device_cube, cube_byte, cudaMemcpyDefault));
-  verify(host_cube, row, column, depth, my_rank);
+  verify(host_cube, n, n, n, my_rank);
 
   double one_way_comm_time = ((end - start)/TIMES/2)*1e6;
   double bandwidth         = matrix_byte / one_way_comm_time;

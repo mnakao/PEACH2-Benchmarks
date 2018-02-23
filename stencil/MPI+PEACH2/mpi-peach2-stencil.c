@@ -108,7 +108,8 @@ static void stencil(const int n, const int my_rank, const int output_flag)
       TCA_SAFE_CALL(tcaStartDMADesc(DMA_CH));
       TCA_SAFE_CALL(tcaWaitDMARecvDesc(&cube_handle[my_rank], 0, WAIT_TAG));
 
-      MPI_Waitall(2, req, MPI_STATUSES_IGNORE);
+      MPI_Waitall(2, req, MPI_STATUSES_IGNORE); 
+      TCA_SAFE_CALL(tcaWaitDMAC(DMA_CH));
     }
     else if(my_rank == 1){
       MPI_SAFE_CALL(MPI_Recv(&device_cube[(n-1)*n*n], n*n, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
@@ -117,10 +118,12 @@ static void stencil(const int n, const int my_rank, const int output_flag)
       MPI_SAFE_CALL(MPI_Recv(&device_cube[0],         n*n, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
     }
     else if(my_rank == 2){
-      TCA_SAFE_CALL(tcaWaitDMARecvDesc(&cube_handle[0], 0, WAIT_TAG));
+      TCA_SAFE_CALL(tcaWaitDMARecvDesc(&cube_handle[0], 0, WAIT_TAG)); 
+      TCA_SAFE_CALL(tcaWaitDMAC(DMA_CH)); 
     }
     else if(my_rank == 4){
       TCA_SAFE_CALL(tcaWaitDMARecvDesc(&cube_handle[0], 0, WAIT_TAG));
+      TCA_SAFE_CALL(tcaWaitDMAC(DMA_CH)); 
     }
   }
 

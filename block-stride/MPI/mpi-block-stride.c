@@ -62,12 +62,12 @@ static void block_stride(const int n, const int my_rank, const int output_flag)
   MPI_Barrier(MPI_COMM_WORLD);
   end = MPI_Wtime();
   CUDA_SAFE_CALL(cudaMemcpy(host_cube, device_cube, cube_byte, cudaMemcpyDefault));
-  verify(host_cube, n, n, n, my_rank);
+  verify(host_cube, n, my_rank);
 
   double one_way_comm_time = ((end - start)/TIMES/2)*1e6;
   double bandwidth         = matrix_byte / one_way_comm_time;
   if(my_rank == 0 && output_flag == 1)
-    printf("N = %d one_way_comm_time = %lf [usec], bandwidth = %lf [MB/s]\n", count, one_way_comm_time, bandwidth);
+    printf("N = %d one_way_comm_time = %lf [usec], bandwidth = %lf [MB/s]\n", n, one_way_comm_time, bandwidth);
 
   CUDA_SAFE_CALL(cudaFreeHost(host_cube));
   CUDA_SAFE_CALL(cudaFree(device_cube));

@@ -29,7 +29,7 @@ void verify(double *host, int n, int my_rank)
           }
     for(int y=0; y<n; y++)
       for(int x=0; x<n; x++)
-        if(fabs(host[y*n+x] - 1.0)) > 1e-16){
+        if(fabs(host[y*n+x] - 1.0) > 1e-16){
 	  printf("[%d] Error2\n", my_rank);
           break;
         }

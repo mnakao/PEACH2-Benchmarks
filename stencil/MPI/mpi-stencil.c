@@ -8,61 +8,49 @@ void verify(double *host, int n, int my_rank)
     for(int z=0; z<n-1; z++)
       for(int y=0; y<n; y++)
         for(int x=0; x<n; x++)
-          if(fabs(host[z*(n*n)+y*n+x] - (double)(my_rank+1)) > 1e-16){
+          if(fabs(host[z*(n*n)+y*n+x] - (double)(my_rank+1)) > 1e-16)
             printf("Error1\n");
-            break;
-          }
+
     for(int y=0; y<n; y++)
       for(int x=0; x<n; x++)
-	if(fabs(host[(n-1)*(n*n)+y*n+x] - 1.0) > 1e-16){
+	if(fabs(host[(n-1)*(n*n)+y*n+x] - 1.0) > 1e-16)
 	  printf("Error2\n");
-	  break;
-	}
-  }
+
   else if(my_rank == 3){
     for(int z=1; z<n; z++)
       for(int y=0; y<n; y++)
         for(int x=0; x<n; x++)
-          if(fabs(host[z*(n*n)+y*n+x] - (double)(my_rank+1)) > 1e-16){
+          if(fabs(host[z*(n*n)+y*n+x] - (double)(my_rank+1)) > 1e-16)
             printf("[%d] Error1\n", my_rank);
-            break;
-          }
+
     for(int y=0; y<n; y++)
       for(int x=0; x<n; x++)
-        if(fabs(host[y*n+x] - 1.0) > 1e-16){
+        if(fabs(host[y*n+x] - 1.0) > 1e-16)
 	  printf("[%d] Error2\n", my_rank);
-          break;
-        }
-  }
+
   else if(my_rank == 2){
     for(int z=0; z<n; z++)
       for(int y=1; y<n; y++)
         for(int x=0; x<n; x++)
-          if(fabs(host[z*(n*n)+y*n+x] - (double)(my_rank+1)) > 1e-16){
+          if(fabs(host[z*(n*n)+y*n+x] - (double)(my_rank+1)) > 1e-16)
 	    printf("[%d] Error1\n", my_rank);
-            break;
-          }
+
     for(int z=0; z<n; z++)
       for(int x=0; x<n; x++)
-        if(fabs(host[z*(n*n)+x] - 1.0) > 1e-16){
+        if(fabs(host[z*(n*n)+x] - 1.0) > 1e-16)
 	    printf("[%d] Error2\n", my_rank);
-            break;
-          }
-  }
+
   else if(my_rank == 4){
     for(int z=0; z<n; z++)
       for(int y=0; y<n-1; y++)
         for(int x=0; x<n; x++)
-          if(fabs(host[z*(n*n)+y*n+x] - (double)(my_rank+1)) > 1e-16){
+          if(fabs(host[z*(n*n)+y*n+x] - (double)(my_rank+1)) > 1e-16)
 	    printf("[%d] Error1\n", my_rank);
-            break;
-          }
+
     for(int z=0; z<n; z++)
-      for(int x=0; x<n; z++)
-        if(fabs(host[z*(n*n)+(n-1)*n+x] - 1.0) > 1e-16){
+      for(int x=0; x<n; x++){
+        if(fabs(host[z*(n*n)+(n-1)*n+x] - 1.0) > 1e-16)
 	  printf("[%d] Error2\n", my_rank);
-	  break;
-	}
   }
 }
 
@@ -115,8 +103,8 @@ static void stencil(const int n, const int my_rank, const int output_flag)
       call_unpack(tmp_matrix_lo, device_cube, n, 0);
     }
     else if(my_rank == 4){
-      MPI_SAFE_CALL(MPI_Recv(tmp_matrix_hi,           n*n, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
-      call_unpack(tmp_matrix_hi, device_cube, n, n-1);
+      MPI_SAFE_CALL(MPI_Recv(tmp_matrix_lo,           n*n, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
+      call_unpack(tmp_matrix_lo, device_cube, n, n-1);
     }
   }
 

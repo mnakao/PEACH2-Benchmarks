@@ -49,7 +49,7 @@ void verify(double *host, int n, int my_rank)
 	    printf("[%d] Error1\n", my_rank);
 
     for(int z=0; z<n; z++)
-      for(int x=0; x<n; x++){
+      for(int x=0; x<n; x++)
         if(fabs(host[z*(n*n)+(n-1)*n+x] - 1.0) > 1e-16)
 	  printf("[%d] Error2\n", my_rank);
   }
@@ -62,12 +62,13 @@ static void stencil(const int n, const int my_rank, const int output_flag)
   double *host_cube, *device_cube;
   double start, end;
   tcaHandle *cube_handle;
-  int desc_tag = 0;
+  int desc_tag[2] = {0, 0};
   int dma_slot = 0;
   CUDA_SAFE_CALL(cudaMallocHost((void**)&host_cube, cube_byte));
   TCA_SAFE_CALL(tcaMalloc((void**)&device_cube, cube_byte, tcaMemoryGPU));
   tcaCreateHandleList(&cube_handle, 5, device_cube, cube_byte);
-  TCA_SAFE_CALL(tcaCreateDMADesc(&desc_tag, 1024));
+  TCA_SAFE_CALL(tcaCreateDMADesc(&desc_tag[0], 1024));
+  TCA_SAFE_CALL(tcaCreateDMADesc(&desc_tag[1], 1024));
 
   off_t src_offset_hi = 0;
   off_t dst_offset_hi = (n-1)*n*sizeof(double);
@@ -77,15 +78,16 @@ static void stencil(const int n, const int my_rank, const int output_flag)
   size_t width = n*sizeof(double);
 
   if(my_rank == 0 || my_rank == 2 || my_rank == 4){
-    TCA_SAFE_CALL(tcaSetDMADesc_Memcpy2D(desc_tag, dma_slot, &dma_slot,
-					 &cube_handle[2], dst_offset_lo, pitch,
-					 &cube_handle[my_rank], src_offset_lo, pitch,
-					 width, n, DMA_FLAG, 0, WAIT_TAG));
-    TCA_SAFE_CALL(tcaSetDMADesc_Memcpy2D(desc_tag, dma_slot, &dma_slot,
+    TCA_SAFE_CALL(tcaSetDMADesc_Memcpy2D(desc_tag[0], dma_slot, &dma_slot,
+    					 &cube_handle[2], dst_offset_lo, pitch,
+    					 &cube_handle[my_rank], src_offset_lo, pitch,
+    					 width, n, DMA_FLAG, 0, WAIT_TAG));
+    TCA_SAFE_CALL(tcaSetDMADesc_Memcpy2D(desc_tag[1], dma_slot, &dma_slot,
 					 &cube_handle[4], dst_offset_hi, pitch,
 					 &cube_handle[my_rank], src_offset_hi, pitch,
 					 width, n, DMA_FLAG, 0, WAIT_TAG));
-    TCA_SAFE_CALL(tcaSetDMAChain(DMA_CH, desc_tag));
+    TCA_SAFE_CALL(tcaSetDMAChain(DMA_CH, desc_tag[0]));
+    TCA_SAFE_CALL(tcaSetDMAChain(DMA_CH, desc_tag[1]));
   }
 
   for(int z=0; z<n; z++)
@@ -136,7 +138,8 @@ static void stencil(const int n, const int my_rank, const int output_flag)
   if(my_rank == 0 && output_flag == 1)
     printf("N = %d one_way_comm_time = %lf [usec], bandwidth = %lf [MB/s]\n", n, one_way_comm_time, bandwidth);
 
-  TCA_SAFE_CALL(tcaDestroyDMADesc(desc_tag));
+  TCA_SAFE_CALL(tcaDestroyDMADesc(desc_tag[0]));
+  TCA_SAFE_CALL(tcaDestroyDMADesc(desc_tag[1]));
   CUDA_SAFE_CALL(cudaFreeHost(host_cube));
   TCA_SAFE_CALL(tcaFree(device_cube, tcaMemoryGPU));
 }

@@ -16,7 +16,7 @@ void verify(double *host, int n, int my_rank)
       for(int x=0; x<n; x++)
 	if(fabs(host[(n-1)*(n*n)+y*n+x] - 1.0) > 1e-16)
 	  printf("Error2\n");
-
+  }
   else if(my_rank == 3){
     for(int z=1; z<n; z++)
       for(int y=0; y<n; y++)
@@ -28,7 +28,7 @@ void verify(double *host, int n, int my_rank)
       for(int x=0; x<n; x++)
         if(fabs(host[y*n+x] - 1.0) > 1e-16)
 	  printf("[%d] Error2\n", my_rank);
-
+  }
   else if(my_rank == 2){
     for(int z=0; z<n; z++)
       for(int y=1; y<n; y++)
@@ -40,7 +40,7 @@ void verify(double *host, int n, int my_rank)
       for(int x=0; x<n; x++)
         if(fabs(host[z*(n*n)+x] - 1.0) > 1e-16)
 	    printf("[%d] Error2\n", my_rank);
-
+  }
   else if(my_rank == 4){
     for(int z=0; z<n; z++)
       for(int y=0; y<n-1; y++)

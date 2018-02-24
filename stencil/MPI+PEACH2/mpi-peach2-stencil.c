@@ -74,7 +74,7 @@ static void stencil(const int n, const int my_rank, const int output_flag)
   size_t width = n*sizeof(double);
 
   tcaDesc *desc_tag = tcaDescNew();
-  if(my_rank == 0 || my_rank == 2 || my_rank == 4){
+  if(my_rank == 0){
     TCA_SAFE_CALL(tcaDescSetMemcpy2D(desc_tag, 
 				     &cube_handle[2], dst_offset_lo, pitch,
 				     &cube_handle[my_rank], src_offset_lo, pitch,
@@ -109,7 +109,6 @@ static void stencil(const int n, const int my_rank, const int output_flag)
       TCA_SAFE_CALL(tcaWaitDMARecvDesc(&cube_handle[my_rank], 0, WAIT_TAG));
 
       MPI_Waitall(2, req, MPI_STATUSES_IGNORE); 
-      TCA_SAFE_CALL(tcaWaitDMAC(DMA_CH));
     }
     else if(my_rank == 1){
       MPI_SAFE_CALL(MPI_Recv(&device_cube[(n-1)*n*n], n*n, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE));
@@ -119,14 +118,12 @@ static void stencil(const int n, const int my_rank, const int output_flag)
     }
     else if(my_rank == 2){
       TCA_SAFE_CALL(tcaWaitDMARecvDesc(&cube_handle[0], 0, WAIT_TAG)); 
-      TCA_SAFE_CALL(tcaWaitDMAC(DMA_CH)); 
     }
     else if(my_rank == 4){
       TCA_SAFE_CALL(tcaWaitDMARecvDesc(&cube_handle[0], 0, WAIT_TAG));
-      TCA_SAFE_CALL(tcaWaitDMAC(DMA_CH)); 
     }
   }
-
+  TCA_SAFE_CALL(tcaWaitDMAC(DMA_CH));
   MPI_Barrier(MPI_COMM_WORLD);
   end = MPI_Wtime();
   CUDA_SAFE_CALL(cudaMemcpy(host_cube, device_cube, cube_byte, cudaMemcpyDefault));
@@ -145,11 +142,17 @@ static void stencil(const int n, const int my_rank, const int output_flag)
 
 int main(int argc, char** argv)
 {
-  int my_rank; 
+  int my_rank, namelen;
+  char processor_name[MPI_MAX_PROCESSOR_NAME];
+
   MPI_SAFE_CALL(MPI_Init(&argc, &argv));
   TCA_SAFE_CALL(tcaInit());
   MPI_SAFE_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &my_rank));
   CUDA_SAFE_CALL(cudaSetDevice(0));
+
+  MPI_Get_processor_name(processor_name, &namelen);
+  printf("Process %d on %s\n", my_rank, processor_name);
+  MPI_Barrier(MPI_COMM_WORLD);
 
   stencil(2, my_rank, 0); // Dry run
   for(int count=2; count<=COUNT; count*=2)

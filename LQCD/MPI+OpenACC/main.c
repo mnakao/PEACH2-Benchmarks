@@ -7,8 +7,8 @@
 /* ****************************************************** */
 #include "lattice.h"
 
-QCDMatrix_t u[4][LT2][LZ2][NY][NX];
-QCDSpinor_t xq[LT2][LZ2][NY][NX], bq[LT2][LZ2][NY][NX];
+static QCDMatrix_t u[4][LT2][LZ2][NY][NX];
+static QCDSpinor_t xq[LT2][LZ2][NY][NX], bq[LT2][LZ2][NY][NX];
 static real_t corr[LT];
 #ifdef _PROF
 double prof_t[PROF_NUMS];

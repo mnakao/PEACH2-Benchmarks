@@ -1,17 +1,23 @@
-Process 0 of 2 is on tcag-0011
+Process 0 of 8 is on tcag-0001
 Simple Wilson solver
 
 NX =  32, NY =  32, NZ =  32, NT =  32
-LX =  32, LY =  32, LZ =  16, LT =  32
-(PT x PZ) = (1 x 2)
+LX =  32, LY =  32, LZ =   4, LT =  32
+(PT x PZ) = (1 x 8)
 CKs =   0.150000
 enorm =   1.0000e-16
-Process 1 of 2 is on tcag-0012
+Process 7 of 8 is on tcag-0002
+Process 3 of 8 is on tcag-0007
+Process 5 of 8 is on tcag-0006
+Process 2 of 8 is on tcag-0005
+Process 4 of 8 is on tcag-0008
+Process 6 of 8 is on tcag-0004
+Process 1 of 8 is on tcag-0003
 
 performance of mult on Host:
-  elapsed time for solver   = 10.031308
+  elapsed time for solver   = 4.448894
   floating point operations = 583847116800.000000
-  performance of mult = 58.202490 GFlops
+  performance of mult = 131.234215 GFlops
 Solver:
   ic  id   nconv      diff
    0   0     699   9.9209e-17
@@ -28,9 +34,9 @@ Solver:
    2   3     701   9.8607e-17
 
 performance of solver:
-  elapsed time for solver   = 530.584543
+  elapsed time for solver   = 217.832632
   floating point operations = 26841591054336.000000
-  performance of solver = 50.588717 GFlops
+  performance of solver = 123.221167 GFlops
 
 solution squared at each time slice:
       0     1.66386535e+02
@@ -65,6 +71,6 @@ solution squared at each time slice:
      29     2.43763772e+01
      30     4.33206810e+01
      31     8.13754256e+01
-MAX: PACK 13.219697 COMM 87.203210 OPR 324.562300 COPY 0.120456 AXPY 65.434493 NORM 14.255511 DOT 19.904838 SCAL 16.077995
-MIN: PACK 13.204879 COMM 87.134692 OPR 324.345681 COPY 0.120361 AXPY 65.432694 NORM 14.254151 DOT 19.739469 SCAL 16.076039
-AVE: PACK 13.212288 COMM 87.168951 OPR 324.453991 COPY 0.120408 AXPY 65.433594 NORM 14.254831 DOT 19.822154 SCAL 16.077017
+MAX: PACK 13.130783 COMM 95.502333 OPR 79.184623 COPY 0.031060 AXPY 16.932431 NORM 4.007049 DOT 9.902684 SCAL 4.184202
+MIN: PACK 13.076766 COMM 95.017575 OPR 78.901558 COPY 0.030982 AXPY 16.916996 NORM 3.994520 DOT 9.496317 SCAL 4.173787
+AVE: PACK 13.103581 COMM 95.220602 OPR 79.066323 COPY 0.031023 AXPY 16.922988 NORM 4.002008 DOT 9.727707 SCAL 4.178823

@@ -9,18 +9,29 @@
 
 static QCDMatrix_t u[4][NT][NZ][NY][NX];
 static QCDSpinor_t xq[NT][NZ][NY][NX], bq[NT][NZ][NY][NX];
+static QCDSpinor_t p[NT][NZ][NY][NX], x[NT][NZ][NY][NX];
 #pragma xmp align u[*][i][j][*][*] with t(j,i)
 #pragma xmp align xq[i][j][*][*] with t(j,i)
 #pragma xmp align bq[i][j][*][*] with t(j,i)
+#pragma xmp align p[i][j][*][*] with t(j,i)
+#pragma xmp align x[i][j][*][*] with t(j,i)
 #pragma xmp shadow u[0][1][1][0][0]
 #pragma xmp shadow xq[1][1][0][0]
 #pragma xmp shadow bq[1][1][0][0]
+#pragma xmp shadow p[1][1][0][0]
+#pragma xmp shadow x[1][1][0][0]
 #ifdef _PROF
 double dtime();
 #endif
 static real_t corr[NT];
 #pragma xmp align corr[i] with t(*,i)
 
+int left, right, up, down;
+QCDSpinor_t vt[LT2][LZ2][NY][NX];
+QCDSpinor_t tmp_QCDSpinor_s[2][LT][NY][NX], tmp_QCDSpinor_r[2][LT][NY][NX];
+QCDMatrix_t tmp_QCDMatrix_s[4][LT][NY][NX], tmp_QCDMatrix_r[4][LT][NY][NX];
+#pragma acc declare create(vt, tmp_QCDSpinor_s, tmp_QCDSpinor_r, tmp_QCDMatrix_s, tmp_QCDMatrix_r)
+MPI_Request req_u[8], req_mat[2], req_w[4][4], req_spr[4], req_vt[4];
 MPI_Comm comm_ud, comm_lr;
 
 static real_t dot(const QCDSpinor_t v1[NT][NZ][NY][NX], const QCDSpinor_t v2[NT][NZ][NY][NX])
@@ -156,7 +167,6 @@ static void copy(QCDSpinor_t v[NT][NZ][NY][NX], const QCDSpinor_t w[NT][NZ][NY][
 		v[it][iz][iy][ix].v[ii][jj][kk] = w[it][iz][iy][ix].v[ii][jj][kk];
 }
 
-static int left, right, up, down;
 void create_cart(const int pt, const int pz, const int me)
 {
   int lr_key = me / pz;
@@ -168,57 +178,6 @@ void create_cart(const int pt, const int pz, const int me)
   up     = (ud_key != 0)?    ud_key - 1 : pz - 1;
 }
 
-/*
-static void pack_QCDMatrix2(QCDMatrix_t tmp_QCDMatrix_s[4][LT2-2][NY][NX], const QCDMatrix_t u[4][LT2][LZ2][NY][NX])
-{
-#pragma acc parallel loop collapse(7) vector_length(VECTOR_LENGTH) num_gangs(NUM_GANGS) present(tmp_QCDMatrix_s[0:4][:][:][:], u[0:4][:][:][:][:])
-  for(int ii=0;ii<4;ii++)
-    for(int it=0;it<LT2-2;it++)
-      for(int iy=0;iy<NY;iy++)
-        for(int ix=0;ix<NX;ix++)
-          for(int i=0;i<NCOL;i++)
-            for(int j=0;j<NCOL;j++)
-              for(int k=0;k<2;k++)
-                tmp_QCDMatrix_s[ii][it][iy][ix].v[i][j][k] = u[ii][it+1][LZ2-2][iy][ix].v[i][j][k];
-}
-
-static void unpack_QCDMatrix2(QCDMatrix_t u[4][LT2][LZ2][NY][NX], const QCDMatrix_t tmp_QCDMatrix_r[4][LT2-2][NY][NX])
-{
-#pragma acc parallel loop collapse(7) vector_length(VECTOR_LENGTH) num_gangs(NUM_GANGS) present(u[0:4][:][:][:][:], tmp_QCDMatrix_r[0:4][:][:][:])
-  for(int ii=0;ii<4;ii++)
-    for(int it=0;it<LT2-2;it++)
-      for(int iy=0;iy<NY;iy++)
-        for(int ix=0;ix<NX;ix++)
-          for(int i=0;i<NCOL;i++)
-            for(int j=0;j<NCOL;j++)
-              for(int k=0;k<2;k++)
-                u[ii][it+1][0][iy][ix].v[i][j][k] = tmp_QCDMatrix_r[ii][it][iy][ix].v[i][j][k];
-}
-
-static void pack_QCDSpinor2(QCDSpinor_t tmp_QCDSpinor_s[2][LT2-2][NY][NX], const QCDSpinor_t w[LT2][LZ2][NY][NX], const int ii, const int jj)
-{
-#pragma acc parallel loop collapse(6) vector_length(VECTOR_LENGTH) num_gangs(NUM_GANGS) present(tmp_QCDSpinor_s[0:2][:][:][:], w[0:LT2][:][:][:])
-  for(int it=0;it<LT2-2;it++)
-    for(int iy=0;iy<NY;iy++)
-      for(int ix=0;ix<NX;ix++)
-        for(int i=0;i<ND;i++)
-          for(int j=0;j<NCOL;j++)
-            for(int k=0;k<2;k++)
-              tmp_QCDSpinor_s[ii][it][iy][ix].v[i][j][k] = w[it+1][jj][iy][ix].v[i][j][k];
-}
-
-static void unpack_QCDSpinor2(QCDSpinor_t w[LT2][LZ2][NY][NX], const QCDSpinor_t tmp_QCDSpinor_r[2][LT2-2][NY][NX], const int ii, const int jj)
-{
-#pragma acc parallel loop collapse(6) vector_length(VECTOR_LENGTH) num_gangs(NUM_GANGS) present(w[0:LT2][:][:][:], tmp_QCDSpinor_r[0:2][:][:][:])
-  for(int it=0;it<LT2-2;it++)
-    for(int iy=0;iy<NY;iy++)
-      for(int ix=0;ix<NX;ix++)
-        for(int i=0;i<ND;i++)
-          for(int j=0;j<NCOL;j++)
-            for(int k=0;k<2;k++)
-              w[it+1][ii][iy][ix].v[i][j][k] = tmp_QCDSpinor_r[jj][it][iy][ix].v[i][j][k];
-}
-*/
 static void opr_H_alt(QCDSpinor_t v2[NT][NZ][NY][NX], QCDMatrix_t u[4][NT][NZ][NY][NX],
 		      QCDSpinor_t v1[NT][NZ][NY][NX])
 {
@@ -942,10 +901,10 @@ static void opr_H_alt(QCDSpinor_t v2[NT][NZ][NY][NX], QCDMatrix_t u[4][NT][NZ][N
 }
 
 static void opr_DdagD_alt(QCDSpinor_t v[LT2][LZ2][NY][NX], QCDMatrix_t u[4][LT2][LZ2][NY][NX], 
-			  QCDSpinor_t w[LT2][LZ2][NY][NX])
+			  QCDSpinor_t w[LT2][LZ2][NY][NX], const int n)
 {
-  static QCDSpinor_t vt[LT2][LZ2][NY][NX];
-#pragma acc enter data pcreate(vt)
+  //  static QCDSpinor_t vt[LT2][LZ2][NY][NX];
+  //#pragma acc enter data pcreate(vt)
 
   // reflect(u,w)
   MPI_Status st[10];
@@ -955,10 +914,6 @@ static void opr_DdagD_alt(QCDSpinor_t v[LT2][LZ2][NY][NX], QCDMatrix_t u[4][LT2]
   int QCDMatrix_zyxvec = (LZ2-2)*NY*NX*NCOL*NCOL*2;
   int QCDSpinor_tyxvec = (LT2-2)*NY*NX*ND*NCOL*2;
   int QCDMatrix_tyxvec = 4*(LT2-2)*NY*NX*NCOL*NCOL*2;
-
-  static QCDSpinor_t tmp_QCDSpinor_s[2][LT2-2][NY][NX], tmp_QCDSpinor_r[2][LT2-2][NY][NX];
-  static QCDMatrix_t tmp_QCDMatrix_s[4][LT2-2][NY][NX], tmp_QCDMatrix_r[4][LT2-2][NY][NX];
-#pragma acc enter data pcreate(tmp_QCDSpinor_s, tmp_QCDSpinor_r, tmp_QCDMatrix_s, tmp_QCDMatrix_r)
 
 #ifdef _PROF
   double tmp = dtime();
@@ -972,20 +927,10 @@ static void opr_DdagD_alt(QCDSpinor_t v[LT2][LZ2][NY][NX], QCDMatrix_t u[4][LT2]
   tmp = dtime();
 #endif
 
-#pragma acc data present(u[0:4][:][:][:][:], tmp_QCDMatrix_r, tmp_QCDMatrix_s)
-  {
-#pragma acc host_data use_device(u, tmp_QCDMatrix_r, tmp_QCDMatrix_s)
-    {
-      for(int i=0;i<4;i++){
-	MPI_Irecv(&u[i][0][1][0][0],     QCDMatrix_zyxvec, MPI_DOUBLE, left,  i, comm_lr, req+0+i*2);
-	MPI_Isend(&u[i][LT2-2][1][0][0], QCDMatrix_zyxvec, MPI_DOUBLE, right, i, comm_lr, req+1+i*2);
-      }
-      MPI_Irecv(tmp_QCDMatrix_r, QCDMatrix_tyxvec, MPI_DOUBLE, up,   5, comm_ud, req+8);
-      MPI_Isend(tmp_QCDMatrix_s, QCDMatrix_tyxvec, MPI_DOUBLE, down, 5, comm_ud, req+9);
-    }
-  }
-
-  MPI_Waitall(10, req, st);
+  MPI_Startall(8, req_u);
+  MPI_Startall(2, req_mat);
+  MPI_Waitall(8, req_u, MPI_STATUSES_IGNORE);
+  MPI_Waitall(2, req_mat, MPI_STATUSES_IGNORE);
 #ifdef _PROF
   prof_t[COMM] += dtime() - tmp;
   tmp = dtime();
@@ -1003,23 +948,11 @@ static void opr_DdagD_alt(QCDSpinor_t v[LT2][LZ2][NY][NX], QCDMatrix_t u[4][LT2]
   tmp = dtime();
 #endif
 
-#pragma acc data present(w[0:LT2][:][:][:], tmp_QCDSpinor_r, tmp_QCDSpinor_s)
-  {
-#pragma acc host_data use_device(w, tmp_QCDSpinor_r, tmp_QCDSpinor_s)
-    {
-      MPI_Irecv(&w[LT2-1][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, req+0);
-      MPI_Irecv(&w[0][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, req+1);
-      MPI_Isend(&w[1][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, req+2);
-      MPI_Isend(&w[LT2-2][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, req+3);
+  MPI_Startall(4, req_w[n]);
+  MPI_Startall(4, req_spr);
+  MPI_Waitall(4, req_w[n], MPI_STATUSES_IGNORE);
+  MPI_Waitall(4, req_spr, MPI_STATUSES_IGNORE);
 
-      MPI_Irecv(&tmp_QCDSpinor_r[1][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, down, 12, comm_ud, req+4);
-      MPI_Irecv(&tmp_QCDSpinor_r[0][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, up,   13, comm_ud, req+5);
-      MPI_Isend(&tmp_QCDSpinor_s[0][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, up,   12, comm_ud, req+6);
-      MPI_Isend(&tmp_QCDSpinor_s[1][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, down, 13, comm_ud, req+7);
-    }
-  }
-
-  MPI_Waitall(8, req, st);
 #ifdef _PROF
   prof_t[COMM] += dtime() - tmp;
   tmp = dtime();
@@ -1051,23 +984,11 @@ static void opr_DdagD_alt(QCDSpinor_t v[LT2][LZ2][NY][NX], QCDMatrix_t u[4][LT2]
   prof_t[PACK] += dtime() - tmp;
   tmp = dtime();
 #endif
-#pragma acc data present (tmp_QCDSpinor_r, tmp_QCDSpinor_s, vt[0:LT2][:][:][:])
-  {
-#pragma acc host_data use_device(vt, tmp_QCDSpinor_r, tmp_QCDSpinor_s)
-    {
-      MPI_Irecv(&vt[LT2-1][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, req+0);
-      MPI_Irecv(&vt[0][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, req+1);
-      MPI_Isend(&vt[1][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, req+2);
-      MPI_Isend(&vt[LT2-2][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, req+3);
 
-      MPI_Irecv(&tmp_QCDSpinor_r[1][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, down, 12, comm_ud, req+4);
-      MPI_Irecv(&tmp_QCDSpinor_r[0][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, up,   13, comm_ud, req+5);
-      MPI_Isend(&tmp_QCDSpinor_s[0][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, up,   12, comm_ud, req+6);
-      MPI_Isend(&tmp_QCDSpinor_s[1][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, down, 13, comm_ud, req+7);
-    }
-  }
-
-  MPI_Waitall(8, req, st);
+    MPI_Startall(4, req_vt);
+    MPI_Startall(4, req_spr);
+    MPI_Waitall(4, req_vt, MPI_STATUSES_IGNORE);
+    MPI_Waitall(4, req_spr, MPI_STATUSES_IGNORE);
 #ifdef _PROF
   prof_t[COMM] += dtime() - tmp;
   tmp = dtime();
@@ -1112,7 +1033,7 @@ static void solve_CG_init(real_t *restrict rrp, real_t *restrict rr, QCDMatrix_t
 #ifdef _PROF
   prof_t[COPY] += dtime() - tmp;
 #endif
-  opr_DdagD_alt(s, u, x);
+  opr_DdagD_alt(s, u, x, 0);
 #ifdef _PROF
   tmp = dtime();
 #endif
@@ -1149,7 +1070,7 @@ static void solve_CG_step(real_t *restrict rrp2, real_t *restrict rr2, QCDMatrix
 #pragma xmp static_desc :: u, x, r, p, v
   real_t rrp = *rrp2;
 
-  opr_DdagD_alt(v, u, p);
+  opr_DdagD_alt(v, u, p, 1);
 
 #ifdef _PROF
   double tmp = dtime();
@@ -1199,18 +1120,20 @@ static void solve_CG(const real_t enorm, int *restrict nconv, real_t *restrict d
 #pragma xmp shadow u[0][1][1][0][0]
 #pragma xmp shadow b[1][1][0][0]
 
-  static QCDSpinor_t x[NT][NZ][NY][NX], s[NT][NZ][NY][NX], r[NT][NZ][NY][NX], p[NT][NZ][NY][NX];
-#pragma xmp align x[i][j][*][*] with t(j,i)
+  //  static QCDSpinor_t x[NT][NZ][NY][NX], s[NT][NZ][NY][NX], r[NT][NZ][NY][NX], p[NT][NZ][NY][NX];
+  static QCDSpinor_t s[NT][NZ][NY][NX], r[NT][NZ][NY][NX];
+  //#pragma xmp align x[i][j][*][*] with t(j,i)
 #pragma xmp align s[i][j][*][*] with t(j,i)
 #pragma xmp align r[i][j][*][*] with t(j,i)
-#pragma xmp align p[i][j][*][*] with t(j,i)
-#pragma xmp shadow x[1][1][0][0]
+    //#pragma xmp align p[i][j][*][*] with t(j,i)
+    //#pragma xmp shadow x[1][1][0][0]
 #pragma xmp shadow s[1][1][0][0]
 #pragma xmp shadow r[1][1][0][0]
-#pragma xmp shadow p[1][1][0][0]
-#pragma xmp static_desc :: u, xq, b, x, s, r, p
-
-#pragma acc enter data pcreate(x, s, r, p)
+    //#pragma xmp shadow p[1][1][0][0]
+    //#pragma xmp static_desc :: u, xq, b, x, s, r, p
+#pragma xmp static_desc :: u, xq, b, s, r
+#pragma acc enter data pcreate(s, r)
+    //#pragma acc enter data pcreate(x, s, r, p)
 
 #ifdef _PROF
   double tmp = dtime();
@@ -1251,7 +1174,7 @@ static void solve_CG(const real_t enorm, int *restrict nconv, real_t *restrict d
 #ifdef _PROF
   prof_t[COPY] += dtime() - tmp;
 #endif
-  opr_DdagD_alt(r, u, x);
+  opr_DdagD_alt(r, u, x, 0);
 #ifdef _PROF
   tmp = dtime();
 #endif
@@ -1388,18 +1311,44 @@ static void test_mult(QCDMatrix_t u[4][NT][NZ][NY][NX])
 #pragma acc enter data create(bq2, xq2)
   set_src(0, 0, 0, 0, 0, 0, bq2);
 
+  int QCDSpinor_zyxvec = LZ * yx_Spinor;
+  int key_t = xmpc_node_num() / PZ;
+  int key_z = xmpc_node_num() % PZ;
+#pragma acc host_data use_device(bq2, xq2)
+  {
+    //    MPI_Recv_init(&bq2[LT2-1][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, &req_w[2][0]);
+    //    MPI_Recv_init(&bq2[0][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, &req_w[2][1]);
+    //    MPI_Send_init(&bq2[1][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, &req_w[2][2]);
+    //    MPI_Send_init(&bq2[LT2-2][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, &req_w[2][3]);
+
+    //    MPI_Recv_init(&xq2[LT2-1][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, &req_w[3][0]);
+    //    MPI_Recv_init(&xq2[0][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, &req_w[3][1]);
+    //    MPI_Send_init(&xq2[1][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, &req_w[3][2]);
+    //    MPI_Send_init(&xq2[LT2-2][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, &req_w[3][3]);
+
+    MPI_Recv_init(&bq2[(key_t+1)*LT][key_z*LZ][0][0],   QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, &req_w[2][0]);
+    MPI_Recv_init(&bq2[key_t*LT-1][key_z*LZ][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, &req_w[2][1]);
+    MPI_Send_init(&bq2[key_t*LT][key_z*LZ][0][0],       QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, &req_w[2][2]);
+    MPI_Send_init(&bq2[(key_t+1)*LT-1][key_z*LZ][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, &req_w[2][3]);
+    
+    MPI_Recv_init(&xq2[(key_t+1)*LT][key_z*LZ][0][0],   QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, &req_w[3][0]);
+    MPI_Recv_init(&xq2[key_t*LT-1][key_z*LZ][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, &req_w[3][1]);
+    MPI_Send_init(&xq2[key_t*LT][key_z*LZ][0][0],       QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, &req_w[3][2]);
+    MPI_Send_init(&xq2[(key_t+1)*LT-1][key_z*LZ][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, &req_w[3][3]);
+  }
+
 #pragma xmp barrier
   double time0 = dtime();
   for(int i = 0; i < nrepeat; i++){
-    opr_DdagD_alt(xq2, u, bq2);
-    opr_DdagD_alt(bq2, u, xq2);
+    opr_DdagD_alt(xq2, u, bq2, 2);
+    opr_DdagD_alt(bq2, u, xq2, 3);
   }
 #pragma xmp barrier
   double time_tot  = dtime() - time0;
   double fop_mult1 = 2.0 * 1392.0 * (double)(NST);
   double fop_mult  = (double)nrepeat * 2.0 * fop_mult1;
 
-#pragma xmp task on p(1,1)
+#pragma xmp task on procs(1,1)
   {
     printf("\nperformance of mult on Host:\n");
     printf("  elapsed time for solver   = %f\n",  time_tot);
@@ -1429,7 +1378,7 @@ int main(int argc, char *argv[])
 
   //  acc_set_device_num((xmp_node_num()-1)%NGPUS+1, acc_device_nvidia);
 
-#pragma xmp task on p(1,1)
+#pragma xmp task on procs(1,1)
   {
     //#pragma omp parallel
     //#pragma omp single
@@ -1441,19 +1390,67 @@ int main(int argc, char *argv[])
     printf("enorm = %12.4e\n", enorm);
   }
 
+#pragma acc enter data create(xq, bq, p, x)
+  create_newcomm(PT, PZ, me);
+  create_cart(PT, PZ, me);
+  uinit(u);
+#pragma acc enter data copyin(u)
+  int QCDSpinor_zyxvec = LZ * yx_Spinor;
+  int QCDMatrix_zyxvec = LZ * yx_Matrix;
+  int QCDSpinor_tyxvec = LT * yx_Spinor;
+  int QCDMatrix_tyxvec = 4*LT*yx_Matrix;
+
+#pragma acc enter data copyin(u)
+  int key_t = xmpc_node_num() / PZ;
+  int key_z = xmpc_node_num() % PZ;
+
+#pragma acc host_data use_device(u, tmp_QCDMatrix_r, tmp_QCDMatrix_s, x, p, tmp_QCDSpinor_r, tmp_QCDSpinor_s, vt)
+  {
+    for(int i=0;i<4;i++){
+      //      MPI_Recv_init(&u[i][0][1][0][0],     QCDMatrix_zyxvec, MPI_DOUBLE, left,  i, comm_lr, &req_u[i*2]);
+      //      MPI_Send_init(&u[i][LT2-2][1][0][0], QCDMatrix_zyxvec, MPI_DOUBLE, right, i, comm_lr, &req_u[1+i*2]);
+      MPI_Recv_init(&u[i][key_t*LT-1][key_z*LZ][0][0],       QCDMatrix_zyxvec, MPI_DOUBLE, left,  i, comm_lr, &req_u[i*2]);
+      MPI_Send_init(&u[i][(key_t+1)*LT-1][key_z*LZ][0][0], QCDMatrix_zyxvec, MPI_DOUBLE, right, i, comm_lr, &req_u[1+i*2]);
+    }
+    MPI_Recv_init(tmp_QCDMatrix_r, QCDMatrix_tyxvec, MPI_DOUBLE, up,   5, comm_ud, &req_mat[0]);
+    MPI_Send_init(tmp_QCDMatrix_s, QCDMatrix_tyxvec, MPI_DOUBLE, down, 5, comm_ud, &req_mat[1]);
+
+    //    MPI_Recv_init(&x[LT2-1][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, &req_w[0][0]);
+    //    MPI_Recv_init(&x[0][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, &req_w[0][1]);
+    //    MPI_Send_init(&x[1][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, &req_w[0][2]);
+    //    MPI_Send_init(&x[LT2-2][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, &req_w[0][3]);
+    MPI_Recv_init(&x[(key_t+1)*LT][key_z*LZ][0][0],   QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, &req_w[0][0]);
+    MPI_Recv_init(&x[key_t*LT-1][key_z*LZ][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, &req_w[0][1]);
+    MPI_Send_init(&x[key_t*LT][key_z*LZ][0][0],       QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, &req_w[0][2]);
+    MPI_Send_init(&x[(key_t+1)*LT-1][key_z*LZ][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, &req_w[0][3]);
+    
+    //    MPI_Recv_init(&p[LT2-1][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, &req_w[1][0]);
+    //    MPI_Recv_init(&p[0][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, &req_w[1][1]);
+    //    MPI_Send_init(&p[1][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, &req_w[1][2]);
+    //    MPI_Send_init(&p[LT2-2][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, &req_w[1][3]);
+    MPI_Recv_init(&p[(key_t+1)*LT][key_z*LZ][0][0],   QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, &req_w[1][0]);
+    MPI_Recv_init(&p[key_t*LT-1][key_z*LZ][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, &req_w[1][1]);
+    MPI_Send_init(&p[key_t*LT][key_z*LZ][0][0],       QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, &req_w[1][2]);
+    MPI_Send_init(&p[(key_t+1)*LT-1][key_z*LZ][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, &req_w[1][3]);
+
+    MPI_Recv_init(&tmp_QCDSpinor_r[1][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, down, 12, comm_ud, &req_spr[0]);
+    MPI_Recv_init(&tmp_QCDSpinor_r[0][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, up,   13, comm_ud, &req_spr[1]);
+    MPI_Send_init(&tmp_QCDSpinor_s[0][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, up,   12, comm_ud, &req_spr[2]);
+    MPI_Send_init(&tmp_QCDSpinor_s[1][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, down, 13, comm_ud, &req_spr[3]);
+
+    MPI_Recv_init(&vt[LT2-1][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, &req_vt[0]);
+    MPI_Recv_init(&vt[0][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, &req_vt[1]);
+    MPI_Send_init(&vt[1][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, &req_vt[2]);
+    MPI_Send_init(&vt[LT2-2][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, &req_vt[3]);
+  }
+
 #pragma xmp loop on t(*,it)
   for(int it = 0; it < NT; it++)
     corr[it] = 0.0;
   
-#pragma acc enter data create(xq, bq)
-  create_newcomm(PT, PZ, me);
-  create_cart(PT, PZ, me);
-
-  uinit(u);
-#pragma acc enter data copyin(u)
   test_mult(u);
 
-#pragma xmp task on p(1,1)
+#pragma xmp task on procs(1,1)
   {
     printf("Solver:\n");
     printf("  ic  id   nconv      diff\n");
@@ -1471,7 +1468,7 @@ int main(int argc, char *argv[])
       double time1 = dtime();
       time_tot += time1 - time0;
       
-#pragma xmp task on p(1,1)
+#pragma xmp task on procs(1,1)
 	printf(" %3d %3d  %6d %12.4e\n", ic, id, nconv, diff);
       
       double fop_mult1 = 2.0 * 1392.0 * (double)(NST);
@@ -1483,9 +1480,9 @@ int main(int argc, char *argv[])
     }
   }
 
-#pragma xmp reduction (+:corr) on p(:,*)
+#pragma xmp reduction (+:corr) on procs(:,*)
 
-#pragma xmp task on p(1,1)
+#pragma xmp task on procs(1,1)
   {
     printf("\nperformance of solver:\n");
     printf("  elapsed time for solver   = %f\n", time_tot);
@@ -1494,7 +1491,7 @@ int main(int argc, char *argv[])
     printf("\nsolution squared at each time slice:\n");
   }
 
-#pragma xmp task on p(1,*)
+#pragma xmp task on procs(1,*)
 #pragma xmp loop on t(*,it)
   for(int it = 0; it < NT; it++)
     printf(" %6d   %16.8e\n", it, corr[it]);
@@ -1508,7 +1505,7 @@ int main(int argc, char *argv[])
   for(int i=0;i<PROF_NUMS;i++)
     prof_t_ave[i] /= nprocs;
 
-#pragma xmp task on p(1,1)
+#pragma xmp task on procs(1,1)
   {
     printf("MAX: PACK %f COMM %f OPR %f COPY %f AXPY %f NORM %f DOT %f SCAL %f\n",
 	   prof_t_max[PACK], prof_t_max[COMM], prof_t_max[OPR], prof_t_max[COPY],

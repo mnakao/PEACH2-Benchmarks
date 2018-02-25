@@ -1,23 +1,17 @@
-Process 0 of 8 is on tcag-0001
+Process 0 of 2 is on tcag-0011
 Simple Wilson solver
 
 NX =  16, NY =  16, NZ =  16, NT =  16
-LX =  16, LY =  16, LZ =   2, LT =  16
-(PT x PZ) = (1 x 8)
+LX =  16, LY =  16, LZ =   8, LT =  16
+(PT x PZ) = (1 x 2)
 CKs =   0.150000
 enorm =   1.0000e-16
-Process 1 of 8 is on tcag-0003
-Process 4 of 8 is on tcag-0008
-Process 7 of 8 is on tcag-0002
-Process 3 of 8 is on tcag-0007
-Process 6 of 8 is on tcag-0004
-Process 5 of 8 is on tcag-0006
-Process 2 of 8 is on tcag-0005
+Process 1 of 2 is on tcag-0012
 
 performance of mult on Host:
-  elapsed time for solver   = 0.682712
+  elapsed time for solver   = 0.840776
   floating point operations = 36490444800.000000
-  performance of mult = 53.449245 GFlops
+  performance of mult = 43.400913 GFlops
 Solver:
   ic  id   nconv      diff
    0   0     576   9.9765e-17
@@ -34,9 +28,9 @@ Solver:
    2   3     574   9.4754e-17
 
 performance of solver:
-  elapsed time for solver   = 21.561667
+  elapsed time for solver   = 36.184826
   floating point operations = 1378568110080.000000
-  performance of solver = 63.936063 GFlops
+  performance of solver = 38.097962 GFlops
 
 solution squared at each time slice:
       0     1.60287648e+02
@@ -55,6 +49,6 @@ solution squared at each time slice:
      13     1.99837800e+01
      14     3.76596953e+01
      15     7.50155263e+01
-MAX: PACK 2.474295 COMM 12.294407 OPR 4.158807 COPY 0.003929 AXPY 1.276364 NORM 0.591943 DOT 1.312570 SCAL 0.349637
-MIN: PACK 2.311687 COMM 12.160072 OPR 4.139683 COPY 0.003397 AXPY 1.265870 NORM 0.586107 DOT 1.224142 SCAL 0.346346
-AVE: PACK 2.335532 COMM 12.251767 OPR 4.149623 COPY 0.003694 AXPY 1.270223 NORM 0.588956 DOT 1.258603 SCAL 0.347674
+MAX: PACK 2.283052 COMM 11.487764 OPR 16.151773 COPY 0.008821 AXPY 3.722667 NORM 1.072718 DOT 1.363741 SCAL 0.961258
+MIN: PACK 2.262950 COMM 11.450104 OPR 16.135607 COPY 0.008789 AXPY 3.716319 NORM 1.068606 DOT 1.360872 SCAL 0.959278
+AVE: PACK 2.273001 COMM 11.468934 OPR 16.143690 COPY 0.008805 AXPY 3.719493 NORM 1.070662 DOT 1.362306 SCAL 0.960268

@@ -1,16 +1,23 @@
-Process 0 of 1 is on tcag-0009
+Process 0 of 8 is on tcag-0001
 Simple Wilson solver
 
 NX =  16, NY =  16, NZ =  16, NT =  16
-LX =  16, LY =  16, LZ =  16, LT =  16
-(PT x PZ) = (1 x 1)
+LX =  16, LY =  16, LZ =   2, LT =  16
+(PT x PZ) = (1 x 8)
 CKs =   0.150000
 enorm =   1.0000e-16
+Process 6 of 8 is on tcag-0004
+Process 5 of 8 is on tcag-0006
+Process 2 of 8 is on tcag-0005
+Process 3 of 8 is on tcag-0007
+Process 1 of 8 is on tcag-0003
+Process 4 of 8 is on tcag-0008
+Process 7 of 8 is on tcag-0002
 
 performance of mult on Host:
-  elapsed time for solver   = 1.041322
+  elapsed time for solver   = 0.534612
   floating point operations = 36490444800.000000
-  performance of mult = 35.042422 GFlops
+  performance of mult = 68.255948 GFlops
 Solver:
   ic  id   nconv      diff
    0   0     576   9.9765e-17
@@ -27,9 +34,9 @@ Solver:
    2   3     574   9.4754e-17
 
 performance of solver:
-  elapsed time for solver   = 48.675522
+  elapsed time for solver   = 21.513790
   floating point operations = 1378568110080.000000
-  performance of solver = 28.321589 GFlops
+  performance of solver = 64.078347 GFlops
 
 solution squared at each time slice:
       0     1.60287648e+02
@@ -48,6 +55,6 @@ solution squared at each time slice:
      13     1.99837800e+01
      14     3.76596953e+01
      15     7.50155263e+01
-MAX: PACK 2.262866 COMM 2.356538 OPR 32.284566 COPY 0.016131 AXPY 7.062613 NORM 1.729946 DOT 2.200271 SCAL 1.771004
-MIN: PACK 2.262866 COMM 2.356538 OPR 32.284566 COPY 0.016131 AXPY 7.062613 NORM 1.729946 DOT 2.200271 SCAL 1.771004
-AVE: PACK 2.262866 COMM 2.356538 OPR 32.284566 COPY 0.016131 AXPY 7.062613 NORM 1.729946 DOT 2.200271 SCAL 1.771004
+MAX: PACK 2.303615 COMM 12.184056 OPR 4.154588 COPY 0.003578 AXPY 1.276947 NORM 0.597210 DOT 1.318819 SCAL 0.348747
+MIN: PACK 2.291641 COMM 12.062751 OPR 4.110185 COPY 0.003354 AXPY 1.263554 NORM 0.585656 DOT 1.219428 SCAL 0.346243
+AVE: PACK 2.297189 COMM 12.132690 OPR 4.131353 COPY 0.003508 AXPY 1.270941 NORM 0.590499 DOT 1.255251 SCAL 0.347390

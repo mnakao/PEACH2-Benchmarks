@@ -6,26 +6,26 @@ LX =  16, LY =  16, LZ =   2, LT =   8
 (PT x PZ) = (2 x 8)
 CKs =   0.150000
 enorm =   1.0000e-16
+Process 9 of 16 is on tcag-0011
 Process 13 of 16 is on tcag-0014
-Process 6 of 16 is on tcag-0004
-Process 14 of 16 is on tcag-0012
-Process 2 of 16 is on tcag-0005
-Process 10 of 16 is on tcag-0013
 Process 15 of 16 is on tcag-0010
-Process 4 of 16 is on tcag-0008
-Process 5 of 16 is on tcag-0006
+Process 1 of 16 is on tcag-0003
+Process 2 of 16 is on tcag-0005
+Process 12 of 16 is on tcag-0016
 Process 7 of 16 is on tcag-0002
 Process 3 of 16 is on tcag-0007
-Process 1 of 16 is on tcag-0003
-Process 9 of 16 is on tcag-0011
+Process 14 of 16 is on tcag-0012
+Process 4 of 16 is on tcag-0008
+Process 5 of 16 is on tcag-0006
+Process 10 of 16 is on tcag-0013
 Process 8 of 16 is on tcag-0009
+Process 6 of 16 is on tcag-0004
 Process 11 of 16 is on tcag-0015
-Process 12 of 16 is on tcag-0016
 
 performance of mult on Host:
-  elapsed time for solver   = 0.417817
+  elapsed time for solver   = 0.415440
   floating point operations = 36490444800.000000
-  performance of mult = 87.335976 GFlops
+  performance of mult = 87.835638 GFlops
 Solver:
   ic  id   nconv      diff
    0   0     576   9.9765e-17
@@ -42,9 +42,17 @@ Solver:
    2   3     574   9.4754e-17
 
 performance of solver:
-  elapsed time for solver   = 16.331993
+      8     2.71082224e+00
+      9     2.99407503e+00
+     10     4.20617423e+00
+     11     6.64632329e+00
+     12     1.14853614e+01
+     13     1.99837800e+01
+     14     3.76596953e+01
+     15     7.50155263e+01
+  elapsed time for solver   = 16.261864
   floating point operations = 1378568110080.000000
-  performance of solver = 84.409058 GFlops
+  performance of solver = 84.773067 GFlops
 
 solution squared at each time slice:
       0     1.60287648e+02
@@ -55,14 +63,6 @@ solution squared at each time slice:
       5     8.88453990e+00
       6     5.43921176e+00
       7     3.45830581e+00
-MAX: PACK 1.630855 COMM 10.757058 OPR 1.920172 COPY 0.003421 AXPY 0.803032 NORM 0.505837 DOT 1.129343 SCAL 0.237261
-MIN: PACK 1.603027 COMM 10.532439 OPR 1.892741 COPY 0.002594 AXPY 0.791162 NORM 0.489829 DOT 0.892822 SCAL 0.232965
-AVE: PACK 1.611482 COMM 10.672674 OPR 1.905240 COPY 0.003091 AXPY 0.796936 NORM 0.498576 DOT 0.999372 SCAL 0.235410
-      8     2.71082224e+00
-      9     2.99407503e+00
-     10     4.20617423e+00
-     11     6.64632329e+00
-     12     1.14853614e+01
-     13     1.99837800e+01
-     14     3.76596953e+01
-     15     7.50155263e+01
+MAX: PACK 1.593297 COMM 10.816641 OPR 1.918274 COPY 0.002395 AXPY 0.801860 NORM 0.492218 DOT 1.005673 SCAL 0.237738
+MIN: PACK 1.575429 COMM 10.662634 OPR 1.891477 COPY 0.002349 AXPY 0.788728 NORM 0.483825 DOT 0.840096 SCAL 0.234198
+AVE: PACK 1.586663 COMM 10.730304 OPR 1.905288 COPY 0.002374 AXPY 0.795504 NORM 0.488314 DOT 0.917168 SCAL 0.235851

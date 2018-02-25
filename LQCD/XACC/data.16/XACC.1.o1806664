@@ -1,19 +1,16 @@
-Process 0 of 4 is on tcag-0013
+Process 0 of 1 is on tcag-0009
 Simple Wilson solver
 
 NX =  16, NY =  16, NZ =  16, NT =  16
-LX =  16, LY =  16, LZ =   4, LT =  16
-(PT x PZ) = (1 x 4)
+LX =  16, LY =  16, LZ =  16, LT =  16
+(PT x PZ) = (1 x 1)
 CKs =   0.150000
 enorm =   1.0000e-16
-Process 1 of 4 is on tcag-0015
-Process 3 of 4 is on tcag-0014
-Process 2 of 4 is on tcag-0016
 
 performance of mult on Host:
-  elapsed time for solver   = 0.651979
+  elapsed time for solver   = 1.038527
   floating point operations = 36490444800.000000
-  performance of mult = 55.968745 GFlops
+  performance of mult = 35.136732 GFlops
 Solver:
   ic  id   nconv      diff
    0   0     576   9.9765e-17
@@ -30,9 +27,9 @@ Solver:
    2   3     574   9.4754e-17
 
 performance of solver:
-  elapsed time for solver   = 26.748547
+  elapsed time for solver   = 48.720653
   floating point operations = 1378568110080.000000
-  performance of solver = 51.538056 GFlops
+  performance of solver = 28.295354 GFlops
 
 solution squared at each time slice:
       0     1.60287648e+02
@@ -51,6 +48,6 @@ solution squared at each time slice:
      13     1.99837800e+01
      14     3.76596953e+01
      15     7.50155263e+01
-MAX: PACK 2.318887 COMM 12.417422 OPR 7.969731 COPY 0.005629 AXPY 2.117024 NORM 0.735873 DOT 1.427400 SCAL 0.555018
-MIN: PACK 2.307221 COMM 12.245765 OPR 7.956634 COPY 0.005451 AXPY 2.106940 NORM 0.728497 DOT 1.276941 SCAL 0.553528
-AVE: PACK 2.312670 COMM 12.345400 OPR 7.963521 COPY 0.005529 AXPY 2.111260 NORM 0.733227 DOT 1.337821 SCAL 0.554188
+MAX: PACK 2.249748 COMM 2.333198 OPR 32.384401 COPY 0.016111 AXPY 7.067280 NORM 1.730642 DOT 2.190809 SCAL 1.770965
+MIN: PACK 2.249748 COMM 2.333198 OPR 32.384401 COPY 0.016111 AXPY 7.067280 NORM 1.730642 DOT 2.190809 SCAL 1.770965
+AVE: PACK 2.249748 COMM 2.333198 OPR 32.384401 COPY 0.016111 AXPY 7.067280 NORM 1.730642 DOT 2.190809 SCAL 1.770965

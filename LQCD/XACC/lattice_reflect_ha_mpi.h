@@ -11,10 +11,10 @@
 #include <openacc.h>
 #endif
 #include <string.h> // unneeded
-# define PT 1
-# define PZ 1
+# define PT 2
+# define PZ 8
 
-# define NX      16
+# define NX      32
 # define NY      NX
 # define NZ      (NX)
 # define NT      (NX)
@@ -60,8 +60,8 @@ extern void unpack_QCDSpinor(QCDSpinor_t w[LT2][LZ2][NY][NX], const QCDSpinor_t 
 
 // XcalableMP
 #pragma xmp template t(0:NZ-1, 0:NT-1)
-#pragma xmp nodes p(PZ,PT)
-#pragma xmp distribute t(block, block) onto p
+#pragma xmp nodes procs(PZ,PT)
+#pragma xmp distribute t(block, block) onto procs
 
 // MACROs
 #define MULT_GXr(u0,u1,u2,u3,u4,u5,v0,v1,v2,v3,v4,v5)   (u0*v0-u1*v1 + u2*v2-u3*v3 + u4*v4-u5*v5)

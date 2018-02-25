@@ -7,13 +7,13 @@ LX =  32, LY =  32, LZ =   8, LT =  32
 CKs =   0.150000
 enorm =   1.0000e-16
 Process 1 of 4 is on tcag-0015
-Process 2 of 4 is on tcag-0016
 Process 3 of 4 is on tcag-0014
+Process 2 of 4 is on tcag-0016
 
 performance of mult on Host:
-  elapsed time for solver   = 6.521145
+  elapsed time for solver   = 6.539532
   floating point operations = 583847116800.000000
-  performance of mult = 89.531383 GFlops
+  performance of mult = 89.279649 GFlops
 Solver:
   ic  id   nconv      diff
    0   0     699   9.9209e-17
@@ -30,9 +30,9 @@ Solver:
    2   3     701   9.8607e-17
 
 performance of solver:
-  elapsed time for solver   = 335.415102
+  elapsed time for solver   = 336.850946
   floating point operations = 26841591054336.000000
-  performance of solver = 80.024993 GFlops
+  performance of solver = 79.683882 GFlops
 
 solution squared at each time slice:
       0     1.66386535e+02
@@ -67,6 +67,6 @@ solution squared at each time slice:
      29     2.43763772e+01
      30     4.33206810e+01
      31     8.13754256e+01
-MAX: PACK 19.780326 COMM 97.001426 OPR 162.192204 COPY 0.064813 AXPY 33.872209 NORM 8.835795 DOT 13.314437 SCAL 8.388956
-MIN: PACK 18.718005 COMM 96.736008 OPR 161.904276 COPY 0.063200 AXPY 33.703089 NORM 8.671597 DOT 12.464094 SCAL 8.280344
-AVE: PACK 19.165984 COMM 96.838847 OPR 162.043282 COPY 0.063809 AXPY 33.794097 NORM 8.748467 DOT 12.904484 SCAL 8.320703
+MAX: PACK 20.243160 COMM 97.219869 OPR 163.248035 COPY 0.064553 AXPY 33.965044 NORM 8.864582 DOT 13.796671 SCAL 8.400917
+MIN: PACK 18.590770 COMM 96.850462 OPR 162.762858 COPY 0.063358 AXPY 33.768866 NORM 8.670374 DOT 11.821338 SCAL 8.291770
+AVE: PACK 19.419770 COMM 97.044927 OPR 163.032269 COPY 0.064025 AXPY 33.871563 NORM 8.761671 DOT 12.822702 SCAL 8.341374

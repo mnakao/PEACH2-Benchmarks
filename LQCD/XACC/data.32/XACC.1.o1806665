@@ -1,23 +1,16 @@
-Process 0 of 8 is on tcag-0001
+Process 0 of 1 is on tcag-0009
 Simple Wilson solver
 
 NX =  32, NY =  32, NZ =  32, NT =  32
-LX =  32, LY =  32, LZ =   4, LT =  32
-(PT x PZ) = (1 x 8)
+LX =  32, LY =  32, LZ =  32, LT =  32
+(PT x PZ) = (1 x 1)
 CKs =   0.150000
 enorm =   1.0000e-16
-Process 7 of 8 is on tcag-0002
-Process 2 of 8 is on tcag-0005
-Process 1 of 8 is on tcag-0003
-Process 5 of 8 is on tcag-0006
-Process 6 of 8 is on tcag-0004
-Process 4 of 8 is on tcag-0008
-Process 3 of 8 is on tcag-0007
 
 performance of mult on Host:
-  elapsed time for solver   = 4.472116
+  elapsed time for solver   = 15.968317
   floating point operations = 583847116800.000000
-  performance of mult = 130.552767 GFlops
+  performance of mult = 36.562846 GFlops
 Solver:
   ic  id   nconv      diff
    0   0     699   9.9209e-17
@@ -34,9 +27,9 @@ Solver:
    2   3     701   9.8607e-17
 
 performance of solver:
-  elapsed time for solver   = 217.809865
+  elapsed time for solver   = 898.574582
   floating point operations = 26841591054336.000000
-  performance of solver = 123.234046 GFlops
+  performance of solver = 29.871300 GFlops
 
 solution squared at each time slice:
       0     1.66386535e+02
@@ -71,6 +64,6 @@ solution squared at each time slice:
      29     2.43763772e+01
      30     4.33206810e+01
      31     8.13754256e+01
-MAX: PACK 13.161688 COMM 95.607912 OPR 79.161051 COPY 0.031058 AXPY 16.850531 NORM 4.004359 DOT 10.208760 SCAL 4.177797
-MIN: PACK 13.137976 COMM 94.841864 OPR 78.984922 COPY 0.030968 AXPY 16.832483 NORM 3.990932 DOT 9.349147 SCAL 4.172724
-AVE: PACK 13.151121 COMM 95.222456 OPR 79.089323 COPY 0.031026 AXPY 16.841182 NORM 3.999170 DOT 9.722564 SCAL 4.174981
+MAX: PACK 13.004801 COMM 10.162960 OPR 665.212170 COPY 0.239884 AXPY 129.882494 NORM 27.907115 DOT 36.210759 SCAL 31.869255
+MIN: PACK 13.004801 COMM 10.162960 OPR 665.212170 COPY 0.239884 AXPY 129.882494 NORM 27.907115 DOT 36.210759 SCAL 31.869255
+AVE: PACK 13.004801 COMM 10.162960 OPR 665.212170 COPY 0.239884 AXPY 129.882494 NORM 27.907115 DOT 36.210759 SCAL 31.869255

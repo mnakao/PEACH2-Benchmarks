@@ -2,7 +2,7 @@
 #PBS -A TCAGEN
 #PBS -N Stencil
 #PBS -q tcaq-q1
-#PBS -l select=1:ncpus=1:host=tcag-0001+1:ncpus=1:host=tcag-0002+1:ncpus=1:host=tcag-0003+1:ncpus=1:host=tcag-0004+1:ncpus=1:host=tcag-0005
+#PBS -l select=1:ncpus=1:host=tcag-0002+1:ncpus=1:host=tcag-0001+1:ncpus=1:host=tcag-0003+1:ncpus=1:host=tcag-0004+1:ncpus=1:host=tcag-0005
 #PBS -l walltime=00:01:00
 module purge
 module load cuda/7.5.18 intel/16.0.4 mvapich2-gdr/2.2_intel_cuda-7.5

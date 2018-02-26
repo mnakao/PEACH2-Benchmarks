@@ -3,12 +3,14 @@ SRCS	= main_reflect_ha_mpi.c
 HEADS	= lattice_reflect_ha_mpi.h
 OBJS	= $(SRCS:.c=.o) pack_unpack.o
 FILES	= Makefile $(HEADS) $(SRCS)
+ODAJIMA = ../../misc/odajima
+FUJITA  = ../../misc/fujita
 
 CC=xmpcc 
 CUDA=/opt/CUDA/7.5.18/cudatoolkit/
-CCFLAGS=-xacc -O3 --device=Kepler -mcmodel=medium -I$(CUDA)/include -D_PROF
+CCFLAGS=-xacc -O3 --device=Kepler -mcmodel=medium -I$(CUDA)/include -D_PROF -I$(ODAJIMA)/include -I$(FUJITA)/include
 #CCFLAGS=-xacc -O3 --device=Kepler -mcmodel=medium -I$(CUDA)/include
-LDFLAGS=$(CCFLAGS) -L$(CUDA)/lib64 -lcublas
+LDFLAGS=$(CCFLAGS) -L$(CUDA)/lib64 -lcublas -L$(FUJITA)/lib -ltca -L$(ODAJIMA)/lib -ltcacomm 
 MPI=/opt/MPI/MVAPICH2-GDR/2.2/Intel/CUDA/7.5/
 
 all: $(PACKAGE)

@@ -6,6 +6,13 @@
 /*                     Copyright(c) Hideo Matsufuru 2016  */
 /* ****************************************************** */
 #include "lattice_reflect_ha_mpi.h"
+//#include "mpi-help.h"
+//#include "cuda-help.h"
+//#include "tca-help.h"
+
+#define DMA_CH 0
+#define WAIT_TAG (0x100)
+#define DMA_FLAG (tcaDMAUseInternal|tcaDMAUseNotifyInternal|tcaDMANotify|tcaDMANotifySelf)
 
 static QCDMatrix_t u[4][NT][NZ][NY][NX];
 static QCDSpinor_t xq[NT][NZ][NY][NX], bq[NT][NZ][NY][NX];
@@ -1375,6 +1382,7 @@ int main(int argc, char *argv[])
   MPI_Comm_rank(MPI_COMM_WORLD, &me);
   MPI_Get_processor_name(processor_name, &namelen);
   printf("Process %d of %d is on %s\n", me, nprocs, processor_name);
+  tcaInit();
 
   //  acc_set_device_num((xmp_node_num()-1)%NGPUS+1, acc_device_nvidia);
 

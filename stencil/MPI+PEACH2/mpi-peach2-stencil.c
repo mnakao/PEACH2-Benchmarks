@@ -123,9 +123,11 @@ static void stencil(const int n, const int my_rank, const int output_flag)
       TCA_SAFE_CALL(tcaWaitDMARecvDesc(&cube_handle[0], 0, WAIT_TAG));
     }
   }
+
   TCA_SAFE_CALL(tcaWaitDMAC(DMA_CH));
   MPI_Barrier(MPI_COMM_WORLD);
   end = MPI_Wtime();
+  
   CUDA_SAFE_CALL(cudaMemcpy(host_cube, device_cube, cube_byte, cudaMemcpyDefault));
   verify(host_cube, n, my_rank);
 

@@ -1,0 +1,61 @@
+Process 1 of 8 is on tcag-0003
+Process 7 of 8 is on tcag-0002
+Process 0 of 8 is on tcag-0001
+Process 3 of 8 is on tcag-0007
+Process 5 of 8 is on tcag-0006
+Process 4 of 8 is on tcag-0008
+Process 2 of 8 is on tcag-0005
+Process 6 of 8 is on tcag-0004
+Simple Wilson solver
+
+NX =  16, NY =  16, NZ =  16, NT =  16
+LX =  16, LY =  16, LZ =   2, LT =  16
+(PT x PZ) = (1 x 8)
+CKs =   0.150000
+enorm =   1.0000e-16
+NUM=56 LEN=128
+
+performance of mult on Host:
+  elapsed time for solver   = 0.671795
+  floating point operations = 36490444800.000000
+  performance of mult = 54.317817 GFlops
+Solver:
+  ic  id   nconv      diff
+   0   0     576   9.9765e-17
+   0   1     575   9.6300e-17
+   0   2     581   9.8627e-17
+   0   3     568   9.8167e-17
+   1   0     564   9.6776e-17
+   1   1     565   9.8297e-17
+   1   2     571   9.6126e-17
+   1   3     572   9.7486e-17
+   2   0     579   9.8128e-17
+   2   1     582   9.8047e-17
+   2   2     571   9.9308e-17
+   2   3     574   9.4754e-17
+
+performance of solver:
+  elapsed time for solver   = 19.704234
+  floating point operations = 1378568110080.000000
+  performance of solver = 69.963039 GFlops
+
+solution squared at each time slice:
+      0     1.60287648e+02
+      1     7.76776033e+01
+      2     4.03983933e+01
+      3     2.30029990e+01
+      4     1.42910627e+01
+      5     8.88453990e+00
+      6     5.43921176e+00
+      7     3.45830581e+00
+      8     2.71082224e+00
+      9     2.99407503e+00
+     10     4.20617423e+00
+     11     6.64632329e+00
+     12     1.14853614e+01
+     13     1.99837800e+01
+     14     3.76596953e+01
+     15     7.50155263e+01
+MAX: PACK 2.009313 COMM 12.274142 OPR 3.364614 COPY 0.002418 AXPY 0.945977 NORM 0.456517 DOT 1.128446 SCAL 0.288480
+MIN: PACK 1.995253 COMM 12.191518 OPR 3.320805 COPY 0.002370 AXPY 0.941996 NORM 0.453449 DOT 1.085118 SCAL 0.285898
+AVE: PACK 2.001221 COMM 12.235453 OPR 3.339575 COPY 0.002382 AXPY 0.943722 NORM 0.454450 DOT 1.104883 SCAL 0.287327

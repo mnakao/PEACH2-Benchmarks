@@ -14,7 +14,7 @@
 # define PT 2
 # define PZ 8
 
-# define NX      32
+# define NX      16
 # define NY      NX
 # define NZ      (NX)
 # define NT      (NX)

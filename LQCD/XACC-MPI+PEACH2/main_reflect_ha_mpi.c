@@ -9,19 +9,19 @@
 #include "mpi-help.h"
 #include "cuda-help.h"
 #include "tca-help.h"
-tcaHandle *tca_handle_u;
-tcaDesc *desc_u;
-int me;
+tcaHandle *tca_handle_u, *tca_handle_w[4], *tca_handle_vt;
+tcaDesc *desc_u, *desc_w[4], *desc_vt;
+int me, nprocs;
 #define DMA_CH 0
 #define WAIT_TAG (0x100)
-#define DMA_FLAG (tcaDMAUseInternal|tcaDMAUseNotifyInternal|tcaDMANotify|tcaDMANotifySelf)
+//#define DMA_FLAG (tcaDMAUseInternal|tcaDMAUseNotifyInternal|tcaDMANotify|tcaDMANotifySelf)
+#define DMA_FLAG (tcaDMAUseInternal|tcaDMAUseNotifyInternal|tcaDMANotify)
 
-//static QCDMatrix_t u[4][NT][NZ][NY][NX];
 static QCDMatrix_t u[4][LT2][LZ2][NY][NX];
 static QCDMatrix_t (*u_dev)[LT2][LZ2][NY][NX];
 static QCDSpinor_t xq[NT][NZ][NY][NX], bq[NT][NZ][NY][NX];
-//static QCDSpinor_t p[NT][NZ][NY][NX], x[NT][NZ][NY][NX];
 static QCDSpinor_t p[LT2][LZ2][NY][NX], x[LT2][LZ2][NY][NX];
+static QCDSpinor_t (*p_dev)[LZ2][NY][NX], (*x_dev)[LZ2][NY][NX];
 //#pragma xmp align u[*][i][j][*][*] with t(j,i)
 #pragma xmp align xq[i][j][*][*] with t(j,i)
 #pragma xmp align bq[i][j][*][*] with t(j,i)
@@ -39,10 +39,11 @@ static real_t corr[NT];
 #pragma xmp align corr[i] with t(*,i)
 
 int left, right, up, down;
-QCDSpinor_t vt[LT2][LZ2][NY][NX];
+static QCDSpinor_t vt[LT2][LZ2][NY][NX];
+static QCDMatrix_t (*vt_dev)[LZ2][NY][NX];
 QCDSpinor_t tmp_QCDSpinor_s[2][LT][NY][NX], tmp_QCDSpinor_r[2][LT][NY][NX];
 QCDMatrix_t tmp_QCDMatrix_s[4][LT][NY][NX], tmp_QCDMatrix_r[4][LT][NY][NX];
-#pragma acc declare create(vt, tmp_QCDSpinor_s, tmp_QCDSpinor_r, tmp_QCDMatrix_s, tmp_QCDMatrix_r)
+#pragma acc declare create(tmp_QCDSpinor_s, tmp_QCDSpinor_r, tmp_QCDMatrix_s, tmp_QCDMatrix_r)
 MPI_Request req_u[8], req_mat[2], req_w[4][4], req_spr[4], req_vt[4];
 MPI_Comm comm_ud, comm_lr;
 
@@ -931,57 +932,72 @@ static void opr_DdagD_alt(QCDSpinor_t v[LT2][LZ2][NY][NX], QCDMatrix_t u[4][LT2]
   double tmp = dtime();
 #endif
 
-#pragma acc host_data use_device(tmp_QCDMatrix_s, u)
-  pack_QCDMatrix(tmp_QCDMatrix_s, u);
+  //#pragma acc host_data use_device(tmp_QCDMatrix_s, u)
+  //  pack_QCDMatrix(tmp_QCDMatrix_s, u);
 
   //#ifdef _PROF
   //  prof_t[PACK] += dtime() - tmp;
   //  tmp = dtime();
   //#endif
+  //  MPI_Startall(2, req_mat);
+  //  MPI_Waitall(2, req_mat, MPI_STATUSES_IGNORE);
 
+  /*
   MPI_Startall(8, req_u);
-  MPI_Startall(2, req_mat);
-  //  TCA_SAFE_CALL(tcaStartDMADesc(DMA_CH));
+  TCA_SAFE_CALL(tcaDescSet(desc_u, DMA_CH));
+  TCA_SAFE_CALL(tcaStartDMADesc(DMA_CH));
   MPI_Waitall(8, req_u, MPI_STATUSES_IGNORE);
-  MPI_Waitall(2, req_mat, MPI_STATUSES_IGNORE);
-    //  TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_u[me], 0, WAIT_TAG));
+  int target_r = (me%PZ != 0)?     me-1 : me+PZ-1;
+  int target_s = (me%PZ != PZ-1)?  me+1 : me-PZ+1;
+  TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_u[target_r], 0, WAIT_TAG));
+  TCA_SAFE_CALL(tcaWaitDMAC(DMA_CH));
+  MPI_Barrier(MPI_COMM_WORLD);
+  */
+  MPI_Startall(8, req_u);
+  TCA_SAFE_CALL(tcaDescSet(desc_u, DMA_CH));
+  TCA_SAFE_CALL(tcaStartDMADesc(DMA_CH));
+  int target_r = (me%PZ != 0)?     me-1 : me+PZ-1;
+  int target_s = (me%PZ != PZ-1)?  me+1 : me-PZ+1;
+  MPI_Waitall(8, req_u, MPI_STATUSES_IGNORE);
+  TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_u[target_r], 1, WAIT_TAG));
+  //  TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_u[me], 1, WAIT_TAG));
+  TCA_SAFE_CALL(tcaWaitDMAC(DMA_CH));
 
-#ifdef _PROF
-  prof_t[COMM] += dtime() - tmp;
-  tmp = dtime();
-#endif
-
-#pragma acc host_data use_device(u, tmp_QCDMatrix_r, tmp_QCDSpinor_s, w)
-  {
-    unpack_QCDMatrix(u, tmp_QCDMatrix_r);
-    pack_QCDSpinor(tmp_QCDSpinor_s, w, 0, 1);
-    pack_QCDSpinor(tmp_QCDSpinor_s, w, 1, LZ2-2);
-  }
-
-#ifdef _PROF
-  prof_t[PACK] += dtime() - tmp;
-  tmp = dtime();
-#endif
-
+  //#pragma acc host_data use_device(u, tmp_QCDMatrix_r, tmp_QCDSpinor_s, w)
+  //  {
+    //    unpack_QCDMatrix(u, tmp_QCDMatrix_r);
+    //    pack_QCDSpinor(tmp_QCDSpinor_s, w, 0, 1);
+    //    pack_QCDSpinor(tmp_QCDSpinor_s, w, 1, LZ2-2);
+  //  }
+  
   MPI_Startall(4, req_w[n]);
-  MPI_Startall(4, req_spr);
+  TCA_SAFE_CALL(tcaDescSet(desc_w[n], DMA_CH));
+  TCA_SAFE_CALL(tcaStartDMADesc(DMA_CH));
   MPI_Waitall(4, req_w[n], MPI_STATUSES_IGNORE);
-  MPI_Waitall(4, req_spr, MPI_STATUSES_IGNORE);
+  TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_w[n][target_r], 2, WAIT_TAG));
+  TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_w[n][target_s], 2, WAIT_TAG));
+  //  TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_w[n][me], 2, WAIT_TAG));
+  TCA_SAFE_CALL(tcaWaitDMAC(DMA_CH));
+  MPI_Barrier(MPI_COMM_WORLD);
+
+  //  MPI_Startall(4, req_w[n]);
+  //  MPI_Startall(4, req_spr);
+  //  MPI_Waitall(4, req_w[n], MPI_STATUSES_IGNORE);
+  //  MPI_Waitall(4, req_spr, MPI_STATUSES_IGNORE);
 
 #ifdef _PROF
   prof_t[COMM] += dtime() - tmp;
   tmp = dtime();
 #endif
-
-#pragma acc host_data use_device(w, tmp_QCDSpinor_r)
-  {
-    unpack_QCDSpinor(w, tmp_QCDSpinor_r, 0, 0);
-    unpack_QCDSpinor(w, tmp_QCDSpinor_r, LZ2-1, 1);
-  }
-
+  
+  //#pragma acc host_data use_device(w, tmp_QCDSpinor_r)
+  //  {
+    //    unpack_QCDSpinor(w, tmp_QCDSpinor_r, 0, 0);
+    //    unpack_QCDSpinor(w, tmp_QCDSpinor_r, LZ2-1, 1);
+    //  }
 #ifdef _PROF
-  prof_t[PACK] += dtime() - tmp;
-  tmp = dtime();
+  //  prof_t[PACK] += dtime() - tmp;
+  //  tmp = dtime();
 #endif
   opr_H_alt(vt, u, w);
 #ifdef _PROF
@@ -989,35 +1005,42 @@ static void opr_DdagD_alt(QCDSpinor_t v[LT2][LZ2][NY][NX], QCDMatrix_t u[4][LT2]
   tmp = dtime();
 #endif
 
-#pragma acc host_data use_device(tmp_QCDSpinor_s, vt)
-  {
-    pack_QCDSpinor(tmp_QCDSpinor_s, vt, 0, 1);
-    pack_QCDSpinor(tmp_QCDSpinor_s, vt, 1, LZ2-2);
-  }
+  //#pragma acc host_data use_device(tmp_QCDSpinor_s, vt)
+  //  {
+    //    pack_QCDSpinor(tmp_QCDSpinor_s, vt, 0, 1);
+    //    pack_QCDSpinor(tmp_QCDSpinor_s, vt, 1, LZ2-2);
+    //  }
 
 #ifdef _PROF
-  prof_t[PACK] += dtime() - tmp;
-  tmp = dtime();
+  //  prof_t[PACK] += dtime() - tmp;
+  //  tmp = dtime();
 #endif
-
     MPI_Startall(4, req_vt);
-    MPI_Startall(4, req_spr);
+    TCA_SAFE_CALL(tcaDescSet(desc_vt, DMA_CH));
+    TCA_SAFE_CALL(tcaStartDMADesc(DMA_CH));
+    //    MPI_Startall(4, req_spr);
     MPI_Waitall(4, req_vt, MPI_STATUSES_IGNORE);
-    MPI_Waitall(4, req_spr, MPI_STATUSES_IGNORE);
+    TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_vt[target_r], 0, WAIT_TAG));
+    TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_vt[target_s], 0, WAIT_TAG));
+    //    TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_vt[me], 0, WAIT_TAG));
+    TCA_SAFE_CALL(tcaWaitDMAC(DMA_CH));
+    MPI_Barrier(MPI_COMM_WORLD);
+    //    MPI_Barrier(MPI_COMM_WORLD);
+    //    MPI_Waitall(4, req_spr, MPI_STATUSES_IGNORE);
 #ifdef _PROF
   prof_t[COMM] += dtime() - tmp;
   tmp = dtime();
 #endif
 
-#pragma acc host_data use_device(vt, tmp_QCDSpinor_r)
-  {
-    unpack_QCDSpinor(vt, tmp_QCDSpinor_r, 0, 0);
-    unpack_QCDSpinor(vt, tmp_QCDSpinor_r, LZ2-1, 1);
-  }
+  //#pragma acc host_data use_device(vt, tmp_QCDSpinor_r)
+  //  {
+  //    unpack_QCDSpinor(vt, tmp_QCDSpinor_r, 0, 0);
+  //    unpack_QCDSpinor(vt, tmp_QCDSpinor_r, LZ2-1, 1);
+  //  }
 
 #ifdef _PROF
-  prof_t[PACK] += dtime() - tmp;
-  tmp = dtime();
+  //  prof_t[PACK] += dtime() - tmp;
+  //  tmp = dtime();
 #endif
   opr_H_alt(v, u, vt);
 #ifdef _PROF
@@ -1319,23 +1342,51 @@ static void test_mult(QCDMatrix_t u[4][NT][NZ][NY][NX])
 #pragma xmp shadow u[0][1][1][0][0]
   int nrepeat = 100;
   QCDSpinor_t bq2[LT2][LZ2][NY][NX], xq2[LT2][LZ2][NY][NX];
-#pragma acc enter data create(bq2, xq2)
+  QCDSpinor_t (*bq2_dev)[LZ2][NY][NX], (*xq2_dev)[LZ2][NY][NX];
+  //#pragma acc enter data create(bq2, xq2)
+
+  TCA_SAFE_CALL(tcaMalloc((void**)&bq2_dev, LT2*LZ2*yx_Spinor*sizeof(real_t), tcaMemoryGPU));
+  TCA_SAFE_CALL(tcaMalloc((void**)&xq2_dev, LT2*LZ2*yx_Spinor*sizeof(real_t), tcaMemoryGPU));
+  acc_map_data(bq2, bq2_dev, LT2*LZ2*yx_Spinor*sizeof(real_t));
+  acc_map_data(xq2, xq2_dev, LT2*LZ2*yx_Spinor*sizeof(real_t));
+
+  tcaCreateHandleList(&tca_handle_w[2], nprocs, (real_t*)bq2_dev, LT2*LZ2*yx_Spinor*sizeof(real_t));
+  tcaCreateHandleList(&tca_handle_w[3], nprocs, (real_t*)xq2_dev, LT2*LZ2*yx_Spinor*sizeof(real_t));
+
+  int target_s = (me%PZ != PZ-1)?  me+1 : me-PZ+1;
+  int target_r = (me%PZ != 0)?     me-1 : me+PZ-1;
+  for(int i=2;i<4;i++){
+    off_t dst_offset = LZ2           * yx_Spinor * sizeof(real_t);
+    off_t src_offset = (LZ2 + LZ2-2) * yx_Spinor * sizeof(real_t);
+    off_t pitch      = LZ2           * yx_Spinor * sizeof(real_t);
+    TCA_SAFE_CALL(tcaDescSetMemcpy2D(desc_w[i],
+				     &tca_handle_w[i][target_s], dst_offset, pitch,
+				     &tca_handle_w[i][me],       src_offset, pitch,
+				     yx_Spinor*sizeof(real_t), LT, DMA_FLAG, 2, WAIT_TAG));
+    dst_offset = (LZ2 + LZ2-1) * yx_Spinor * sizeof(real_t);
+    src_offset = (LZ2 + 1)     * yx_Spinor * sizeof(real_t);
+    TCA_SAFE_CALL(tcaDescSetMemcpy2D(desc_w[i],
+    				     &tca_handle_w[i][target_r], dst_offset, pitch,
+    				     &tca_handle_w[i][me],       src_offset, pitch,
+    				     yx_Spinor*sizeof(real_t), LT, DMA_FLAG, 2, WAIT_TAG));
+  }
+  
   set_src(0, 0, 0, 0, 0, 0, bq2);
 
   int QCDSpinor_zyxvec = LZ * yx_Spinor;
   int key_t = xmpc_node_num() / PZ;
   int key_z = xmpc_node_num() % PZ;
-#pragma acc host_data use_device(bq2, xq2)
+  //#pragma acc host_data use_device(bq2, xq2)
   {
-    MPI_Recv_init(&bq2[LT2-1][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, &req_w[2][0]);
-    MPI_Recv_init(&bq2[0][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, &req_w[2][1]);
-    MPI_Send_init(&bq2[1][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, &req_w[2][2]);
-    MPI_Send_init(&bq2[LT2-2][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, &req_w[2][3]);
+    MPI_Recv_init(&bq2_dev[LT2-1][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, &req_w[2][0]);
+    MPI_Recv_init(&bq2_dev[0][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, &req_w[2][1]);
+    MPI_Send_init(&bq2_dev[1][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, &req_w[2][2]);
+    MPI_Send_init(&bq2_dev[LT2-2][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, &req_w[2][3]);
     
-    MPI_Recv_init(&xq2[LT2-1][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, &req_w[3][0]);
-    MPI_Recv_init(&xq2[0][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, &req_w[3][1]);
-    MPI_Send_init(&xq2[1][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, &req_w[3][2]);
-    MPI_Send_init(&xq2[LT2-2][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, &req_w[3][3]);
+    MPI_Recv_init(&xq2_dev[LT2-1][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, &req_w[3][0]);
+    MPI_Recv_init(&xq2_dev[0][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, &req_w[3][1]);
+    MPI_Send_init(&xq2_dev[1][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, &req_w[3][2]);
+    MPI_Send_init(&xq2_dev[LT2-2][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, &req_w[3][3]);
   }
 
 #pragma xmp barrier
@@ -1356,7 +1407,9 @@ static void test_mult(QCDMatrix_t u[4][NT][NZ][NY][NX])
     printf("  floating point operations = %f\n",  fop_mult);
     printf("  performance of mult = %f GFlops\n", fop_mult/time_tot * 1.0e-9);
   }
-#pragma acc exit data delete (bq2, xq2)
+  //#pragma acc exit data delete (bq2, xq2)
+  TCA_SAFE_CALL(tcaFree(bq2_dev, tcaMemoryGPU));
+  TCA_SAFE_CALL(tcaFree(xq2_dev, tcaMemoryGPU));
 }
 
 int main(int argc, char *argv[])
@@ -1365,7 +1418,7 @@ int main(int argc, char *argv[])
   real_t diff;
   int nconv;
 
-  int  namelen, nprocs;
+  int  namelen;
   char processor_name[MPI_MAX_PROCESSOR_NAME];
 #ifdef _PROF
   for(int i=0;i<PROF_NUMS;i++)
@@ -1378,12 +1431,25 @@ int main(int argc, char *argv[])
   printf("Process %d of %d is on %s\n", me, nprocs, processor_name);
   tcaInit();
   TCA_SAFE_CALL(tcaMalloc((void**)&u_dev, 4*LT2*LZ2*yx_Matrix*sizeof(real_t), tcaMemoryGPU));
-  //  CUDA_SAFE_CALL(cudaMalloc((void**)&u_dev,  4*LT2*LZ2*yx_Matrix*sizeof(real_t)));
-  acc_map_data(u, u_dev, 4*LT2*LZ2*yx_Matrix*sizeof(real_t));
-  tcaCreateHandleList(&tca_handle_u, nprocs, u_dev, 4*LT2*LZ2*yx_Matrix*sizeof(real_t));
+  TCA_SAFE_CALL(tcaMalloc((void**)&p_dev,   LT2*LZ2*yx_Spinor*sizeof(real_t), tcaMemoryGPU));
+  TCA_SAFE_CALL(tcaMalloc((void**)&x_dev,   LT2*LZ2*yx_Spinor*sizeof(real_t), tcaMemoryGPU));
+  TCA_SAFE_CALL(tcaMalloc((void**)&vt_dev,   LT2*LZ2*yx_Spinor*sizeof(real_t), tcaMemoryGPU));
+  acc_map_data(u,  u_dev, 4*LT2*LZ2*yx_Matrix*sizeof(real_t));
+  acc_map_data(p,  p_dev,   LT2*LZ2*yx_Spinor*sizeof(real_t));
+  acc_map_data(x,  x_dev,   LT2*LZ2*yx_Spinor*sizeof(real_t));
+  acc_map_data(vt, vt_dev,  LT2*LZ2*yx_Spinor*sizeof(real_t));
+  tcaCreateHandleList(&tca_handle_u,    nprocs, u_dev, 4*LT2*LZ2*yx_Matrix*sizeof(real_t));
+  tcaCreateHandleList(&tca_handle_w[0], nprocs, x_dev,   LT2*LZ2*yx_Spinor*sizeof(real_t));
+  tcaCreateHandleList(&tca_handle_w[1], nprocs, p_dev,   LT2*LZ2*yx_Spinor*sizeof(real_t));
+  tcaCreateHandleList(&tca_handle_vt,   nprocs, vt_dev,  LT2*LZ2*yx_Spinor*sizeof(real_t));
+  
   //  acc_set_device_num((xmp_node_num()-1)%NGPUS+1, acc_device_nvidia);
 
   desc_u = tcaDescNew();
+  desc_vt = tcaDescNew();
+  for(int i=0;i<4;i++) 
+    desc_w[i] = tcaDescNew();
+
 #pragma xmp task on procs(1,1)
   {
     //#pragma omp parallel
@@ -1396,7 +1462,7 @@ int main(int argc, char *argv[])
     printf("enorm = %12.4e\n", enorm);
   }
   
-#pragma acc enter data create(xq, bq, p, x)
+#pragma acc enter data create(xq, bq)
   create_newcomm(PT, PZ, me);
   create_cart(PT, PZ, me);
   uinit(u);
@@ -1410,42 +1476,70 @@ int main(int argc, char *argv[])
   int key_t = xmpc_node_num() / PZ;
   int key_z = xmpc_node_num() % PZ;
 
-#pragma acc host_data use_device(tmp_QCDMatrix_r, tmp_QCDMatrix_s, x, p, tmp_QCDSpinor_r, tmp_QCDSpinor_s, vt)
+#pragma acc host_data use_device(tmp_QCDMatrix_r, tmp_QCDMatrix_s, tmp_QCDSpinor_r, tmp_QCDSpinor_s, vt)
   {
     for(int i=0;i<4;i++){
       MPI_Recv_init(&u_dev[i][0][1][0][0],     QCDMatrix_zyxvec, MPI_DOUBLE, left,  i, comm_lr, &req_u[i*2]);
       MPI_Send_init(&u_dev[i][LT2-2][1][0][0], QCDMatrix_zyxvec, MPI_DOUBLE, right, i, comm_lr, &req_u[1+i*2]);
     }
-    MPI_Recv_init(tmp_QCDMatrix_r, QCDMatrix_tyxvec, MPI_DOUBLE, up,   5, comm_ud, &req_mat[0]);
-    MPI_Send_init(tmp_QCDMatrix_s, QCDMatrix_tyxvec, MPI_DOUBLE, down, 5, comm_ud, &req_mat[1]);
-    //    u[:][1:LT][1][:][:] -> u[:][1:LT][LZ2-1][:][:]
-    /*    int target = (me%NZ != NZ-1)? me+1 : me-NZ+1;
+    //    u[:][1:LT][LZ2-2][:][:] -> u[:][1:LT][0][:][:]
+    int target_s = (me%PZ != PZ-1)?  me+1 : me-PZ+1;
+    int target_r = (me%PZ != 0)?     me-1 : me+PZ-1;
     for(int i=0;i<4;i++){
-      off_t dst_offset = (i*LT2*LZ2 + LZ2 + (LZ2-1)) * yx_Matrix * sizeof(real_t);
-      off_t src_offset = (i*LT2*LZ2 + LZ2 + 1)       * yx_Matrix * sizeof(real_t);
-      off_t pitch      = sizeof(real_t) * LZ2 * yx_Matrix;
+      off_t dst_offset = (i*LT2*LZ2 + LZ2)           * yx_Matrix * sizeof(real_t);
+      off_t src_offset = (i*LT2*LZ2 + LZ2 + (LZ2-2)) * yx_Matrix * sizeof(real_t);
+      off_t pitch      = LZ2 * yx_Matrix * sizeof(real_t);
       TCA_SAFE_CALL(tcaDescSetMemcpy2D(desc_u, 
-				       &tca_handle_u[target], dst_offset, pitch,
-				       &tca_handle_u[me],     src_offset, pitch,
-				       sizeof(real_t)*yx_Matrix, LT, DMA_FLAG, 0, WAIT_TAG));
-    				       }
-      TCA_SAFE_CALL(tcaDescSet(desc_u, DMA_CH));
-*/
-
-    MPI_Recv_init(&x[LT2-1][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, &req_w[0][0]);
-    MPI_Recv_init(&x[0][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, &req_w[0][1]);
-    MPI_Send_init(&x[1][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, &req_w[0][2]);
-    MPI_Send_init(&x[LT2-2][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, &req_w[0][3]);
+				       &tca_handle_u[target_s], dst_offset, pitch,
+				       &tca_handle_u[me],       src_offset, pitch,
+				       yx_Matrix*sizeof(real_t), LT, DMA_FLAG, 1, WAIT_TAG));
+    }
     
-    MPI_Recv_init(&p[LT2-1][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, &req_w[1][0]);
-    MPI_Recv_init(&p[0][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, &req_w[1][1]);
-    MPI_Send_init(&p[1][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, &req_w[1][2]);
-    MPI_Send_init(&p[LT2-2][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, &req_w[1][3]);
+    MPI_Recv_init(&x_dev[LT2-1][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, &req_w[0][0]);
+    MPI_Recv_init(&x_dev[0][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, &req_w[0][1]);
+    MPI_Send_init(&x_dev[1][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, &req_w[0][2]);
+    MPI_Send_init(&x_dev[LT2-2][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, &req_w[0][3]);
+    
+    MPI_Recv_init(&p_dev[LT2-1][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, &req_w[1][0]);
+    MPI_Recv_init(&p_dev[0][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, &req_w[1][1]);
+    MPI_Send_init(&p_dev[1][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  10, comm_lr, &req_w[1][2]);
+    MPI_Send_init(&p_dev[LT2-2][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 11, comm_lr, &req_w[1][3]);
+    
+    // w[1:LT][LZ2-2][:][:] -> w[1:LT][0][:][:]
+    // w[1:LT][1][:][:]     -> w[1:LT][LZ2-1][:][:]
+    for(int i=0;i<2;i++){
+      off_t dst_offset = LZ2           * yx_Spinor * sizeof(real_t);
+      off_t src_offset = (LZ2 + LZ2-2) * yx_Spinor * sizeof(real_t);
+      off_t pitch      = LZ2           * yx_Spinor * sizeof(real_t);
+      TCA_SAFE_CALL(tcaDescSetMemcpy2D(desc_w[i],
+				       &tca_handle_w[i][target_s], dst_offset, pitch,
+				       &tca_handle_w[i][me],       src_offset, pitch,
+				       yx_Spinor*sizeof(real_t), LT, DMA_FLAG, 2, WAIT_TAG));
+      dst_offset = (LZ2 + LZ2-1) * yx_Spinor * sizeof(real_t);
+      src_offset = (LZ2 + 1)     * yx_Spinor * sizeof(real_t);
+      TCA_SAFE_CALL(tcaDescSetMemcpy2D(desc_w[i],
+				       &tca_handle_w[i][target_r], dst_offset, pitch,
+				       &tca_handle_w[i][me],       src_offset, pitch,
+				       yx_Spinor*sizeof(real_t), LT, DMA_FLAG, 2, WAIT_TAG));
+    }
+    off_t dst_offset = LZ2           * yx_Spinor * sizeof(real_t);
+    off_t src_offset = (LZ2 + LZ2-2) * yx_Spinor * sizeof(real_t);
+    off_t pitch      = LZ2           * yx_Spinor * sizeof(real_t);
+    TCA_SAFE_CALL(tcaDescSetMemcpy2D(desc_vt,
+				     &tca_handle_vt[target_s], dst_offset, pitch,
+				     &tca_handle_vt[me],       src_offset, pitch,
+				     yx_Spinor*sizeof(real_t), LT, DMA_FLAG, 0, WAIT_TAG));
+    dst_offset = (LZ2 + LZ2-1) * yx_Spinor * sizeof(real_t);
+    src_offset = (LZ2 + 1)     * yx_Spinor * sizeof(real_t);
+    TCA_SAFE_CALL(tcaDescSetMemcpy2D(desc_vt,
+				     &tca_handle_vt[target_r], dst_offset, pitch,
+				     &tca_handle_vt[me],       src_offset, pitch,
+				     yx_Spinor*sizeof(real_t), LT, DMA_FLAG, 0, WAIT_TAG));
 
-    MPI_Recv_init(&tmp_QCDSpinor_r[1][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, down, 12, comm_ud, &req_spr[0]);
-    MPI_Recv_init(&tmp_QCDSpinor_r[0][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, up,   13, comm_ud, &req_spr[1]);
-    MPI_Send_init(&tmp_QCDSpinor_s[0][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, up,   12, comm_ud, &req_spr[2]);
-    MPI_Send_init(&tmp_QCDSpinor_s[1][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, down, 13, comm_ud, &req_spr[3]);
+    //    MPI_Recv_init(&tmp_QCDSpinor_r[1][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, down, 12, comm_ud, &req_spr[0]);
+    //    MPI_Recv_init(&tmp_QCDSpinor_r[0][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, up,   13, comm_ud, &req_spr[1]);
+    //    MPI_Send_init(&tmp_QCDSpinor_s[0][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, up,   12, comm_ud, &req_spr[2]);
+    //    MPI_Send_init(&tmp_QCDSpinor_s[1][0][0][0], QCDSpinor_tyxvec, MPI_DOUBLE, down, 13, comm_ud, &req_spr[3]);
 
     MPI_Recv_init(&vt[LT2-1][1][0][0], QCDSpinor_zyxvec, MPI_DOUBLE, right, 10, comm_lr, &req_vt[0]);
     MPI_Recv_init(&vt[0][1][0][0],     QCDSpinor_zyxvec, MPI_DOUBLE, left,  11, comm_lr, &req_vt[1]);

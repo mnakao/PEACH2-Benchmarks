@@ -14,7 +14,8 @@ tcaDesc *desc_u, *desc_w[4], *desc_vt;
 int me, nprocs;
 #define DMA_CH 0
 #define WAIT_TAG (0x100)
-#define DMA_FLAG (tcaDMAUseInternal|tcaDMAUseNotifyInternal|tcaDMANotify|tcaDMANotifySelf)
+//#define DMA_FLAG (tcaDMAUseInternal|tcaDMAUseNotifyInternal|tcaDMANotify|tcaDMANotifySelf)
+#define DMA_FLAG (tcaDMAUseInternal|tcaDMAUseNotifyInternal|tcaDMANotify)
 
 static QCDMatrix_t u[4][LT2][LZ2][NY][NX];
 static QCDMatrix_t (*u_dev)[LT2][LZ2][NY][NX];
@@ -959,15 +960,15 @@ static void opr_DdagD_alt(QCDSpinor_t v[LT2][LZ2][NY][NX], QCDMatrix_t u[4][LT2]
   int target_s = (me%PZ != PZ-1)?  me+1 : me-PZ+1;
   MPI_Waitall(8, req_u, MPI_STATUSES_IGNORE);
   TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_u[target_r], 1, WAIT_TAG));
-  TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_u[me], 1, WAIT_TAG));
+  //  TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_u[me], 1, WAIT_TAG));
   TCA_SAFE_CALL(tcaWaitDMAC(DMA_CH));
 
-#pragma acc host_data use_device(u, tmp_QCDMatrix_r, tmp_QCDSpinor_s, w)
-  {
+  //#pragma acc host_data use_device(u, tmp_QCDMatrix_r, tmp_QCDSpinor_s, w)
+  //  {
     //    unpack_QCDMatrix(u, tmp_QCDMatrix_r);
     //    pack_QCDSpinor(tmp_QCDSpinor_s, w, 0, 1);
     //    pack_QCDSpinor(tmp_QCDSpinor_s, w, 1, LZ2-2);
-  }
+  //  }
   
   MPI_Startall(4, req_w[n]);
   TCA_SAFE_CALL(tcaDescSet(desc_w[n], DMA_CH));
@@ -975,9 +976,9 @@ static void opr_DdagD_alt(QCDSpinor_t v[LT2][LZ2][NY][NX], QCDMatrix_t u[4][LT2]
   MPI_Waitall(4, req_w[n], MPI_STATUSES_IGNORE);
   TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_w[n][target_r], 2, WAIT_TAG));
   TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_w[n][target_s], 2, WAIT_TAG));
-  TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_w[n][me], 2, WAIT_TAG));
+  //  TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_w[n][me], 2, WAIT_TAG));
   TCA_SAFE_CALL(tcaWaitDMAC(DMA_CH));
-  //  MPI_Barrier(MPI_COMM_WORLD);
+  MPI_Barrier(MPI_COMM_WORLD);
 
   //  MPI_Startall(4, req_w[n]);
   //  MPI_Startall(4, req_spr);
@@ -1021,8 +1022,9 @@ static void opr_DdagD_alt(QCDSpinor_t v[LT2][LZ2][NY][NX], QCDMatrix_t u[4][LT2]
     MPI_Waitall(4, req_vt, MPI_STATUSES_IGNORE);
     TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_vt[target_r], 0, WAIT_TAG));
     TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_vt[target_s], 0, WAIT_TAG));
-    TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_vt[me], 0, WAIT_TAG));
+    //    TCA_SAFE_CALL(tcaWaitDMARecvDesc(&tca_handle_vt[me], 0, WAIT_TAG));
     TCA_SAFE_CALL(tcaWaitDMAC(DMA_CH));
+    MPI_Barrier(MPI_COMM_WORLD);
     //    MPI_Barrier(MPI_COMM_WORLD);
     //    MPI_Waitall(4, req_spr, MPI_STATUSES_IGNORE);
 #ifdef _PROF

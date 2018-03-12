@@ -1,7 +1,7 @@
 #include "common.h"
 #define DMA_CH 0
 #define WAIT_TAG (0x100)
-#define DMA_FLAG (tcaDMAUseInternal|tcaDMAUseNotifyInternal|tcaDMANotify|tcaDMANotifySelf)
+#define DMA_FLAG (tcaDMAUseInternal|tcaDMAUseNotifyInternal|tcaDMANotify)
 
 static void verify(double *host, int n, int my_rank)
 {
@@ -63,13 +63,13 @@ static void block_stride(const int n, const int my_rank, const int output_flag)
 
     if(my_rank == 0){
       TCA_SAFE_CALL(tcaStartDMADesc(DMA_CH));
-      TCA_SAFE_CALL(tcaWaitDMARecvDesc(&cube_handle[my_rank], 0, WAIT_TAG));
+      //      TCA_SAFE_CALL(tcaWaitDMARecvDesc(&cube_handle[my_rank], 0, WAIT_TAG));
       TCA_SAFE_CALL(tcaWaitDMARecvDesc(&cube_handle[target], 0, WAIT_TAG));
     }
     else {
       TCA_SAFE_CALL(tcaWaitDMARecvDesc(&cube_handle[target], 0, WAIT_TAG));
       TCA_SAFE_CALL(tcaStartDMADesc(DMA_CH));
-      TCA_SAFE_CALL(tcaWaitDMARecvDesc(&cube_handle[my_rank], 0, WAIT_TAG));
+      //      TCA_SAFE_CALL(tcaWaitDMARecvDesc(&cube_handle[my_rank], 0, WAIT_TAG));
     }
   }
 
